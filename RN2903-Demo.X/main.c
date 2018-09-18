@@ -43,11 +43,16 @@
 
 #include "mcc_generated_files/mcc.h"
 
+void RxData(uint8_t* pData, uint8_t dataLength, OpStatus_t status) { }
+void RxJoinResponse(bool status) { }
+
 /*
                          Main application
  */
 void main(void)
 {
+    uint32_t freq;
+    bool enable;
     // Initialize the device
     SYSTEM_Initialize();
 
@@ -56,14 +61,24 @@ void main(void)
     // Use the following macros to:
 
     // Enable the Global Interrupts
-    //INTERRUPT_GlobalInterruptEnable();
+    INTERRUPT_GlobalInterruptEnable();
 
     // Enable the Peripheral Interrupts
-    //INTERRUPT_PeripheralInterruptEnable();
+    INTERRUPT_PeripheralInterruptEnable();
 
     printf("\r\n");
     __delay_ms(1000);
     printf("\r\nRN2903 Test Program\r\nBeyondlogic.org\r\n");
+    
+    LORAWAN_Reset();
+    LORAWAN_Init(RxData, RxJoinResponse);
+    
+    // Print list of enabled channels
+    for (int ch = 0; ch <= 71; ch++){
+        enable = LORAWAN_GetChannelIdStatus(ch);
+        freq = LORAWAN_GetFrequency(ch);
+        if (enable) printf("Channel %02d Enabled: %ldHz\r\n",ch, freq);
+    }
     
     while (1)
     {
