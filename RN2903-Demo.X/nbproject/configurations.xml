@@ -4,6 +4,35 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
+      <logicalFolder name="MCC Generated Files"
+                     displayName="MCC Generated Files"
+                     projectFiles="true">
+        <itemPath>mcc_generated_files/mcc.h</itemPath>
+        <itemPath>mcc_generated_files/spi2.h</itemPath>
+        <itemPath>mcc_generated_files/tmr1.h</itemPath>
+        <itemPath>mcc_generated_files/LoRaWAN/AESdef.h</itemPath>
+        <itemPath>mcc_generated_files/LoRaWAN/AES.h</itemPath>
+        <itemPath>mcc_generated_files/LoRaWAN/interrupt_manager_lora_addons.h</itemPath>
+        <itemPath>mcc_generated_files/LoRaWAN/lorawan.h</itemPath>
+        <itemPath>mcc_generated_files/LoRaWAN/lorawan_aes.h</itemPath>
+        <itemPath>mcc_generated_files/LoRaWAN/lorawan_aes_cmac.h</itemPath>
+        <itemPath>mcc_generated_files/LoRaWAN/lorawan_defs.h</itemPath>
+        <itemPath>mcc_generated_files/LoRaWAN/lorawan_private.h</itemPath>
+        <itemPath>mcc_generated_files/LoRaWAN/lorawan_radio.h</itemPath>
+        <itemPath>mcc_generated_files/LoRaWAN/mcc_lora_config.h</itemPath>
+        <itemPath>mcc_generated_files/LoRaWAN/pin_manager_lora_addons.h</itemPath>
+        <itemPath>mcc_generated_files/LoRaWAN/radio_driver_hal.h</itemPath>
+        <itemPath>mcc_generated_files/LoRaWAN/radio_interface.h</itemPath>
+        <itemPath>mcc_generated_files/LoRaWAN/sw_timer.h</itemPath>
+        <itemPath>mcc_generated_files/LoRaWAN/tmr_lora_addons.h</itemPath>
+        <itemPath>mcc_generated_files/LoRaWAN/lorawan_init.h</itemPath>
+        <itemPath>mcc_generated_files/LoRaWAN/lorawan_na.h</itemPath>
+        <itemPath>mcc_generated_files/LoRaWAN/radio_registers_SX1276.h</itemPath>
+        <itemPath>mcc_generated_files/LoRaWAN/radio_driver_SX1276.h</itemPath>
+        <itemPath>mcc_generated_files/pin_manager.h</itemPath>
+        <itemPath>mcc_generated_files/ext_int.h</itemPath>
+        <itemPath>mcc_generated_files/interrupt_manager.h</itemPath>
+      </logicalFolder>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -12,11 +41,35 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
+      <logicalFolder name="MCC Generated Files"
+                     displayName="MCC Generated Files"
+                     projectFiles="true">
+        <itemPath>mcc_generated_files/mcc.c</itemPath>
+        <itemPath>mcc_generated_files/device_config.c</itemPath>
+        <itemPath>mcc_generated_files/spi2.c</itemPath>
+        <itemPath>mcc_generated_files/tmr1.c</itemPath>
+        <itemPath>mcc_generated_files/LoRaWAN/AES.c</itemPath>
+        <itemPath>mcc_generated_files/LoRaWAN/interrupt_manager_lora_addons.c</itemPath>
+        <itemPath>mcc_generated_files/LoRaWAN/lorawan.c</itemPath>
+        <itemPath>mcc_generated_files/LoRaWAN/lorawan_aes.c</itemPath>
+        <itemPath>mcc_generated_files/LoRaWAN/lorawan_aes_cmac.c</itemPath>
+        <itemPath>mcc_generated_files/LoRaWAN/radio_driver_hal.c</itemPath>
+        <itemPath>mcc_generated_files/LoRaWAN/sw_timer.c</itemPath>
+        <itemPath>mcc_generated_files/LoRaWAN/tmr_lora_addons.c</itemPath>
+        <itemPath>mcc_generated_files/LoRaWAN/lorawan_init.c</itemPath>
+        <itemPath>mcc_generated_files/LoRaWAN/lorawan_na.c</itemPath>
+        <itemPath>mcc_generated_files/LoRaWAN/radio_driver_SX1276.c</itemPath>
+        <itemPath>mcc_generated_files/pin_manager.c</itemPath>
+        <itemPath>mcc_generated_files/ext_int.c</itemPath>
+        <itemPath>mcc_generated_files/interrupt_manager.c</itemPath>
+      </logicalFolder>
+      <itemPath>main.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
                    projectFiles="false">
       <itemPath>Makefile</itemPath>
+      <itemPath>MyConfig.mc3</itemPath>
     </logicalFolder>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
