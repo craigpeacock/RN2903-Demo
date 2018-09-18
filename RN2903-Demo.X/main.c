@@ -46,6 +46,11 @@
 void RxData(uint8_t* pData, uint8_t dataLength, OpStatus_t status) { }
 void RxJoinResponse(bool status) { }
 
+// OTAA Keys:
+uint8_t applicationEuiNew[8] = { 0x70, 0xB3, 0xD5, 0x7E, 0xD0, 0x00, 0xB7, 0x7B };
+uint8_t deviceEuiNew[8] = { 0xAD, 0x75, 0x45, 0x44, 0x66, 0xCD, 0xEF, 0xAB };
+uint8_t applicationKeyNew[16] = { 0xD7, 0xA0, 0xE5, 0xB6, 0xA0, 0x75, 0xB4, 0x2A, 0xC9, 0xDF, 0x8F, 0xD5, 0x00, 0x08, 0xA7, 0x89 };
+
 /*
                          Main application
  */
@@ -80,9 +85,17 @@ void main(void)
         if (enable) printf("Channel %02d Enabled: %ldHz\r\n",ch, freq);
     }
     
+    LORAWAN_SetApplicationEui(applicationEuiNew);
+    LORAWAN_SetDeviceEui(deviceEuiNew);
+    LORAWAN_SetApplicationKey(applicationKeyNew);    
+    LORAWAN_Join(OTAA);
+    
     while (1)
     {
-        // Add your application code
+        LORAWAN_Mainloop();
+        // All other function calls of the user-defined
+        // application must be made here
+        LORAWAN_Send(UNCNF, 2, "Hello World", 11);
     }
 }
 /**
