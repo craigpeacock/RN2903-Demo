@@ -58,15 +58,13 @@ void main(void)
     // Enable the Global Interrupts
     //INTERRUPT_GlobalInterruptEnable();
 
-    // Disable the Global Interrupts
-    //INTERRUPT_GlobalInterruptDisable();
-
     // Enable the Peripheral Interrupts
     //INTERRUPT_PeripheralInterruptEnable();
 
-    // Disable the Peripheral Interrupts
-    //INTERRUPT_PeripheralInterruptDisable();
-
+    printf("\r\n");
+    __delay_ms(1000);
+    printf("\r\nRN2903 Test Program\r\nBeyondlogic.org\r\n");
+    
     while (1)
     {
         // Add your application code

@@ -133,6 +133,16 @@
 #define RC2_SetAnalogMode()         do { ANSELCbits.ANSC2 = 1; } while(0)
 #define RC2_SetDigitalMode()        do { ANSELCbits.ANSC2 = 0; } while(0)
 
+// get/set RC6 procedures
+#define RC6_SetHigh()               do { LATCbits.LATC6 = 1; } while(0)
+#define RC6_SetLow()                do { LATCbits.LATC6 = 0; } while(0)
+#define RC6_Toggle()                do { LATCbits.LATC6 = ~LATCbits.LATC6; } while(0)
+#define RC6_GetValue()              PORTCbits.RC6
+#define RC6_SetDigitalInput()       do { TRISCbits.TRISC6 = 1; } while(0)
+#define RC6_SetDigitalOutput()      do { TRISCbits.TRISC6 = 0; } while(0)
+#define RC6_SetAnalogMode()         do { ANSELCbits.ANSC6 = 1; } while(0)
+#define RC6_SetDigitalMode()        do { ANSELCbits.ANSC6 = 0; } while(0)
+
 // get/set SCK2 aliases
 #define SCK2_TRIS                 TRISDbits.TRISD0
 #define SCK2_LAT                  LATDbits.LATD0

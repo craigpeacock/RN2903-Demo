@@ -54,6 +54,7 @@
 #include "spi2.h"
 #include "tmr1.h"
 #include "ext_int.h"
+#include "eusart1.h"
 #include "LoRaWAN/pin_manager_lora_addons.h"
 #include "LoRaWAN/tmr_lora_addons.h"
 #include "LoRaWAN/lorawan_init.h"
