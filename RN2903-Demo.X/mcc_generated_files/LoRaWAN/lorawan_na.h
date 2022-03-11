@@ -19,7 +19,7 @@
  * software.
  *************************************************************************
  *
- *                           lorawan_na.h
+ *                           lorawan.h
  *
  * LoRaWAN NA header file
  *
@@ -36,20 +36,24 @@ extern "C" {
 #include "lorawan_defs.h"
     
 /****************************** DEFINES ***************************************/    
-
+#define AU915_v10
+//#define AU915_v102
+//#define US915
+    
 #define MAX_US_CHANNELS                         72
 #define MAX_US_CHANNELS_BANDWIDTH_125           64
 #define MAX_US_CHANNELS_BANDWIDTH_500            8
 
+#ifdef US915
 //US channels for 915 Mhz
-#define LC0_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC1_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC2_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC3_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC4_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC5_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC6_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC7_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC0_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC1_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC2_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC3_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC4_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC5_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC6_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC7_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
 #define LC8_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
 #define LC9_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
 #define LC10_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
@@ -58,63 +62,223 @@ extern "C" {
 #define LC13_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
 #define LC14_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
 #define LC15_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC16_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC17_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC18_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC19_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC20_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC21_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC22_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC23_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC24_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC25_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC26_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC27_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC28_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC29_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC30_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC31_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC32_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC33_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC34_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC35_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC36_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC37_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC38_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC39_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC40_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC41_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC42_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC43_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC44_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC45_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC46_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC47_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC48_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC49_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC50_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC51_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC52_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC53_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC54_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC55_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC56_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC57_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC58_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC59_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC60_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC61_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC62_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC63_915                   { DISABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
-#define LC64_915                   { DISABLED,  { ( ( DR4 << SHIFT4 ) | DR4 ) } }
-#define LC65_915                   { DISABLED,  { ( ( DR4 << SHIFT4 ) | DR4 ) } }
-#define LC66_915                   { DISABLED,  { ( ( DR4 << SHIFT4 ) | DR4 ) } }
-#define LC67_915                   { DISABLED,  { ( ( DR4 << SHIFT4 ) | DR4 ) } }
-#define LC68_915                   { DISABLED,  { ( ( DR4 << SHIFT4 ) | DR4 ) } }
-#define LC69_915                   { DISABLED,  { ( ( DR4 << SHIFT4 ) | DR4 ) } }
-#define LC70_915                   { DISABLED,  { ( ( DR4 << SHIFT4 ) | DR4 ) } }
-#define LC71_915                   { DISABLED,  { ( ( DR4 << SHIFT4 ) | DR4 ) } }
+#define LC16_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC17_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC18_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC19_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC20_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC21_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC22_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC23_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC24_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC25_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC26_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC27_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC28_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC29_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC30_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC31_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC32_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC33_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC34_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC35_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC36_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC37_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC38_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC39_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC40_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC41_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC42_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC43_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC44_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC45_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC46_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC47_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC48_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC49_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC50_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC51_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC52_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC53_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC54_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC55_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC56_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC57_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC58_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC59_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC60_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC61_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC62_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC63_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+#define LC64_915                   { ENABLED,  { ( ( DR4 << SHIFT4 ) | DR4 ) } }
+#define LC65_915                   { ENABLED,  { ( ( DR4 << SHIFT4 ) | DR4 ) } }
+#define LC66_915                   { ENABLED,  { ( ( DR4 << SHIFT4 ) | DR4 ) } }
+#define LC67_915                   { ENABLED,  { ( ( DR4 << SHIFT4 ) | DR4 ) } }
+#define LC68_915                   { ENABLED,  { ( ( DR4 << SHIFT4 ) | DR4 ) } }
+#define LC69_915                   { ENABLED,  { ( ( DR4 << SHIFT4 ) | DR4 ) } }
+#define LC70_915                   { ENABLED,  { ( ( DR4 << SHIFT4 ) | DR4 ) } }
+#define LC71_915                   { ENABLED,  { ( ( DR4 << SHIFT4 ) | DR4 ) } }
 
+#endif
+
+#ifdef AU915_v102
+
+    //AU915-928 channels for 915 Mhz
+    #define LC0_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC1_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC2_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC3_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC4_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC5_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC6_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC7_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC8_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC9_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC10_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC11_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC12_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC13_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC14_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC15_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC16_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC17_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC18_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC19_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC20_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC21_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC22_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC23_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC24_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC25_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC26_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC27_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC28_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC29_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC30_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC31_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC32_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC33_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC34_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC35_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC36_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC37_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC38_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC39_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC40_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC41_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC42_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC43_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC44_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC45_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC46_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC47_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC48_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC49_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC50_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC51_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC52_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC53_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC54_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC55_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC56_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC57_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC58_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC59_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC60_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC61_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC62_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+    #define LC63_915                   { ENABLED,  { ( ( DR5 << SHIFT4 ) | DR0 ) } }
+
+    #define LC64_915                   { ENABLED,  { ( ( DR6 << SHIFT4 ) | DR6 ) } }
+    #define LC65_915                   { ENABLED,  { ( ( DR6 << SHIFT4 ) | DR6 ) } }
+    #define LC66_915                   { ENABLED,  { ( ( DR6 << SHIFT4 ) | DR6 ) } }
+    #define LC67_915                   { ENABLED,  { ( ( DR6 << SHIFT4 ) | DR6 ) } }
+    #define LC68_915                   { ENABLED,  { ( ( DR6 << SHIFT4 ) | DR6 ) } }
+    #define LC69_915                   { ENABLED,  { ( ( DR6 << SHIFT4 ) | DR6 ) } }
+    #define LC70_915                   { ENABLED,  { ( ( DR6 << SHIFT4 ) | DR6 ) } }
+    #define LC71_915                   { ENABLED,  { ( ( DR6 << SHIFT4 ) | DR6 ) } }
+
+#endif
+    
+#ifdef AU915_v10
+
+    //AU915-928 channels for 915 Mhz
+    #define LC0_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC1_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC2_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC3_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC4_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC5_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC6_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC7_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC8_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC9_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC10_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC11_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC12_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC13_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC14_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC15_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC16_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC17_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC18_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC19_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC20_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC21_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC22_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC23_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC24_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC25_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC26_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC27_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC28_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC29_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC30_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC31_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC32_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC33_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC34_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC35_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC36_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC37_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC38_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC39_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC40_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC41_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC42_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC43_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC44_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC45_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC46_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC47_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC48_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC49_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC50_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC51_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC52_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC53_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC54_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC55_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC56_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC57_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC58_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC59_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC60_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC61_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC62_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+    #define LC63_915                   { ENABLED,  { ( ( DR3 << SHIFT4 ) | DR0 ) } }
+
+    #define LC64_915                   { ENABLED,  { ( ( DR4 << SHIFT4 ) | DR4 ) } }
+    #define LC65_915                   { ENABLED,  { ( ( DR4 << SHIFT4 ) | DR4 ) } }
+    #define LC66_915                   { ENABLED,  { ( ( DR4 << SHIFT4 ) | DR4 ) } }
+    #define LC67_915                   { ENABLED,  { ( ( DR4 << SHIFT4 ) | DR4 ) } }
+    #define LC68_915                   { ENABLED,  { ( ( DR4 << SHIFT4 ) | DR4 ) } }
+    #define LC69_915                   { ENABLED,  { ( ( DR4 << SHIFT4 ) | DR4 ) } }
+    #define LC70_915                   { ENABLED,  { ( ( DR4 << SHIFT4 ) | DR4 ) } }
+    #define LC71_915                   { ENABLED,  { ( ( DR4 << SHIFT4 ) | DR4 ) } }
+
+#endif
+    
 #define TXPOWER_MIN                                 0
 #define TXPOWER_MAX                                 10
 
@@ -151,7 +315,7 @@ typedef union
         unsigned joining: 1;
         unsigned fPending:1;
         unsigned adrAckRequest:1;
-        unsigned synchronization:1;                     //if set, there is no need to send an immediat packet because the application sent one from the callback
+        unsigned syncronization:1;                      //if set, there is no need to send an immediat packet because the application sent one from the callback
         unsigned alternativeChannelUs:1;
     };
 } LorawanMacStatus_t;
@@ -162,8 +326,6 @@ typedef struct
     LorawanStatus_t macStatus;
     FCnt_t fCntUp;
     FCnt_t fCntDown;
-    FCnt_t fMcastCntDown;
-    LoRaClass_t deviceClass;
     ReceiveWindowParameters_t receiveWindow1Parameters;
     ReceiveWindowParameters_t receiveWindow2Parameters;
     ActivationParameters_t activationParameters;
@@ -207,6 +369,7 @@ typedef struct
     uint8_t abpJoinTimerId;
     uint8_t transmissionErrorTimerId;
     uint8_t syncWord;
+    bool rxDnFrame;
 } LoRa_t;
 
 LoRa_t loRa;

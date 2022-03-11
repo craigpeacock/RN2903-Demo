@@ -49,8 +49,6 @@ extern "C" {
 #include <stdint.h>
 #include "lorawan_defs.h"
 
-#define TIME_ON_AIR_LOAD_VALUE              ((uint32_t)20000)
-#define WATCHDOG_DEFAULT_TIME               ((uint32_t)15000)
 
 typedef enum
 {

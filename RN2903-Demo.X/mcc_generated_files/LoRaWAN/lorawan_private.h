@@ -37,7 +37,7 @@ extern "C" {
 
 /****************************** DEFINES ***************************************/    
     
-#define INVALID_VALUE                           0xFF
+#define INVALID_VALUE         0xFF
 
 #define ENABLED                                 1
 #define DISABLED                                0
@@ -48,17 +48,9 @@ extern "C" {
 #define RESPONSE_OK                             1
 #define RESPONSE_NOT_OK                         0
 
-#define FLAG_ERROR                              0
-#define FLAG_OK                                 1
-
-#define MCAST_ENABLED                           1
-#define MCAST_DISABLED                          0
-
 #define RESERVED_FOR_FUTURE_USE                 0
 
 #define MAXIMUM_BUFFER_LENGTH                   271
-
-#define CLASS_C_RX_WINDOW_SIZE                  0
 
 //Data rate (DR) encoding 
 #define DR0                                     0  
@@ -85,10 +77,10 @@ extern "C" {
     
 // bit mask for MAC commands
 // link ADR and RX2 setup
-#define CHANNEL_MASK_ACK                        0x01
-#define DATA_RATE_ACK                           0x02
-#define RX1_DR_OFFSET_ACK                       0x04
-#define POWER_ACK                               0x04
+#define CHANNEL_MASK_ACK                            0x01
+#define DATA_RATE_ACK                               0x02
+#define RX1_DR_OFFSET_ACK                           0x04
+#define POWER_ACK                                   0x04
     
 #define FPORT_MIN                               1
 #define FPORT_MAX                               223
@@ -128,8 +120,6 @@ typedef enum
     RX2_OPEN                    ,
     RETRANSMISSION_DELAY        ,         //used for ADR_ACK delay, FSK can occur
     ABP_DELAY                   ,         //used for delaying in calling the join callback for ABP
-    CLASS_C_RX2_1_OPEN          ,
-    CLASS_C_RX2_2_OPEN          ,
 } LoRaMacState_t;   
 
 // types of frames
@@ -151,7 +141,7 @@ typedef enum
     LINK_CHECK_CID              = 0x02,
     LINK_ADR_CID                = 0x03,
     DUTY_CYCLE_CID              = 0x04,
-    RX2_SETUP_CID               = 0x05,
+    RX_PARAM_SETUP_CID          = 0x05,
     DEV_STATUS_CID              = 0x06,
     NEW_CHANNEL_CID             = 0x07,
     RX_TIMING_SETUP_CID         = 0x08,
@@ -194,9 +184,6 @@ typedef struct
     uint8_t applicationKey[16];   
     GenericEui_t applicationEui;
     GenericEui_t deviceEui;
-    DeviceAddress_t mcastDeviceAddress;
-    uint8_t mcastNetworkSessionKey[16];
-    uint8_t mcastApplicationSessionKey[16];
 } ActivationParameters_t;
 
 typedef union
@@ -256,7 +243,6 @@ typedef struct
     uint16_t joinAcceptDelay1  ;
     uint16_t joinAcceptDelay2  ;
     uint16_t maxFcntGap        ;
-    uint16_t maxMultiFcntGap   ;
     uint16_t ackTimeout        ;
     uint8_t adrAckLimit        ;
     uint8_t adrAckDelay        ;
@@ -264,31 +250,28 @@ typedef struct
 
 typedef struct
 {
-    uint8_t receivedCid;
-    unsigned channelMaskAck :1;             // used for link adr answer
-    unsigned dataRateAck :1;                // used for link adr answer
-    unsigned powerAck :1;                   // used for link adr answer
-    unsigned channelAck :1;                 // used for RX param setup request
-    unsigned dataRateReceiveWindowAck :1;   // used for RX param setup request
-    unsigned rx1DROffestAck :1;             // used for RX param setup request
-    unsigned dataRateRangeAck :1;           // used for new channel answer
-    unsigned channelFrequencyAck :1;        // used for new channel answer
+   uint8_t receivedCid;
+   unsigned channelMaskAck :1;           // used for link adr answer
+   unsigned dataRateAck :1;              // used for link adr answer
+   unsigned powerAck :1;                 // used for link adr answer
+   unsigned channelAck :1;               // used for RX param setup request
+   unsigned dataRateReceiveWindowAck :1; // used for RX param setup request
+   unsigned rx1DROffestAck :1;           // used for RX param setup request
+   unsigned dataRateRangeAck :1;        // used for new channel answer
+   unsigned channelFrequencyAck :1;     // used for new channel answer
 } LorawanCommands_t;
 
 typedef union
 {
-    uint16_t value;
+    uint8_t value;
     struct
     {
-        unsigned deviceEui: 1;              //if set, device EUI was defined
-        unsigned applicationEui:1;
-        unsigned deviceAddress: 1;
-        unsigned applicationKey:1;
-        unsigned networkSessionKey:1;
-        unsigned applicationSessionKey:1;
-        unsigned mcastApplicationSessionKey:1;
-        unsigned mcastNetworkSessionKey:1;
-        unsigned mcastDeviceAddress:1;
+       unsigned deviceEui: 1;             //if set, device EUI was defined
+       unsigned applicationEui:1;
+       unsigned deviceAddress: 1;
+       unsigned applicationKey:1;
+       unsigned networkSessionKey:1;
+       unsigned applicationSessionKey:1;
     };
 } LorawanMacKeys_t;
 
@@ -312,14 +295,18 @@ typedef union
 extern uint8_t macBuffer[];
 extern uint8_t radioBuffer[];
 
-extern RxAppData_t rxPayload;
+RxAppData_t rxPayload;
+
+bool rxParamSetupReqAnsFlag;
+bool rxTimingSetupReqAnsFlag;
+uint8_t rxParamSetupAns;
 
 /*************************** FUNCTIONS PROTOTYPE ******************************/
 
 // Callback functions
 void LORAWAN_ReceiveWindow1Callback (uint8_t param);
 
-reentrant void LORAWAN_ReceiveWindow2Callback (uint8_t param);
+void LORAWAN_ReceiveWindow2Callback (uint8_t param);
 
 void LORAWAN_LinkCheckCallback (uint8_t param);
 
@@ -382,7 +369,7 @@ void ConfigureRadio(uint8_t dataRate, uint32_t freq);
 
 uint32_t GetRx1Freq (void);
 
-void LORAWAN_EnterContinuousReceive(void);
+
 
 #ifdef	__cplusplus
 }

@@ -48,10 +48,10 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 
-extern volatile uint8_t timerOverflow;
-extern volatile uint32_t ticksToScheduledInterrupt;
-extern volatile uint16_t reloadVal;
-extern volatile uint32_t ticksAdded;
+volatile uint8_t timerOverflow;
+volatile uint32_t ticksToScheduledInterrupt;
+volatile uint16_t reloadVal;
+volatile uint32_t ticksAdded;
     
 void TMR_ISR_lora(void);
 void TMR_ISR_Lora_Init(void);

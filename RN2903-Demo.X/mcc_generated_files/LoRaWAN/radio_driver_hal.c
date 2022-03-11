@@ -91,12 +91,25 @@ uint8_t HALDIO2PinValue(void)
 }
 
 
+uint8_t HALDIO4PinValue(void)
+{
+    return RADIO_DIO4_GetValue();
+}
 
 uint8_t HALDIO5PinValue(void)
 {
     return RADIO_DIO5_GetValue();
 }
 
+void HALEnableRFSwitch(uint8_t ifc)
+{
+    RADIO_SW_POW_SetHigh();
+}
+
+void HALDisableRFSwitch(uint8_t ifc)
+{
+    RADIO_SW_POW_SetLow();
+}
 
 /**
  End of File

@@ -151,9 +151,13 @@ extern "C" {
 
 #define BATTERY_LEVEL_INVALID                   (0xFF)
 
-#define NA915_UPSTREAM_CH0                      (FREQ_915200KHZ)
-#define NA915_UPSTREAM_CH64                     (FREQ_915900KHZ)
+#define NA915_UPSTREAM_CH0                      (FREQ_902300KHZ)
+#define NA915_UPSTREAM_CH64                     (FREQ_903000KHZ)
 #define NA915_DOWNSTREAM_CH0                    (FREQ_923300KHZ)
+
+#define SA915_UPSTREAM_CH0                      (FREQ_915200KHZ)
+#define SA915_UPSTREAM_CH64                     (FREQ_915900KHZ)
+#define SA915_DOWNSTREAM_CH0                    (FREQ_923300KHZ)
 
 #ifdef	__cplusplus
 }

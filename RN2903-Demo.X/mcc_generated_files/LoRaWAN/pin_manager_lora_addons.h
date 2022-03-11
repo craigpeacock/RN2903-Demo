@@ -100,6 +100,22 @@ extern "C" {
 #define RADIO_DIO2_SetDigitalMode()         do { ANSB4 = 0; } while(0)
 
 
+// get/set RADIO_DIO4 aliases
+#define RADIO_DIO4_TRIS                     TRISB5
+#define RADIO_DIO4_LAT                      LATB5
+#define RADIO_DIO4_PORT                     RB5
+#define RADIO_DIO4_WPU                      WPUB5
+#define RADIO_DIO4_ANS                      ANSB5
+#define RADIO_DIO4_SetHigh()                do { LATB5 = 1; } while(0)
+#define RADIO_DIO4_SetLow()                 do { LATB5 = 0; } while(0)
+#define RADIO_DIO4_Toggle()                 do { LATB5 = ~LATB5; } while(0)
+#define RADIO_DIO4_GetValue()               PORTBbits.RB5
+#define RADIO_DIO4_SetDigitalInput()        do { TRISB5 = 1; } while(0)
+#define RADIO_DIO4_SetDigitalOutput()       do { TRISB5 = 0; } while(0)
+#define RADIO_DIO4_SetPullup()              do { WPUB5 = 1; } while(0)
+#define RADIO_DIO4_ResetPullup()            do { WPUB5 = 0; } while(0)
+#define RADIO_DIO4_SetAnalogMode()          do { ANSB5 = 1; } while(0)
+#define RADIO_DIO4_SetDigitalMode()         do { ANSB5 = 0; } while(0)
 
 // get/set RADIO_DIO5 aliases
 #define RADIO_DIO5_TRIS                     TRISB0
@@ -118,6 +134,22 @@ extern "C" {
 #define RADIO_DIO5_SetAnalogMode()          do { ANSB0 = 1; } while(0)
 #define RADIO_DIO5_SetDigitalMode()         do { ANSB0 = 0; } while(0)    
 
+// get/set RADIO_SW_POW aliases
+#define RADIO_SW_POW_TRIS                   TRISB3
+#define RADIO_SW_POW_LAT                    LATB3
+#define RADIO_SW_POW_PORT                   RB3
+#define RADIO_SW_POW_WPU                    WPUB3
+#define RADIO_SW_POW_ANS                    ANSB3
+#define RADIO_SW_POW_SetHigh()              do { LATB3 = 1; } while(0)
+#define RADIO_SW_POW_SetLow()               do { LATB3 = 0; } while(0)
+#define RADIO_SW_POW_Toggle()               do { LATB3 = ~LATB3; } while(0)
+#define RADIO_SW_POW_GetValue()             PORTBbits.RB3
+#define RADIO_SW_POW_SetDigitalInput()      do { TRISB3 = 1; } while(0)
+#define RADIO_SW_POW_SetDigitalOutput()     do { TRISB3 = 0; } while(0)
+#define RADIO_SW_POW_SetPullup()            do { WPUB3 = 1; } while(0)
+#define RADIO_SW_POW_ResetPullup()          do { WPUB3 = 0; } while(0)
+#define RADIO_SW_POW_SetAnalogMode()        do { ANSB3 = 1; } while(0)
+#define RADIO_SW_POW_SetDigitalMode()       do { ANSB3 = 0; } while(0)    
 
 // get/set RADIO_nReset aliases
 #define RADIO_nReset_TRIS                   TRISC2

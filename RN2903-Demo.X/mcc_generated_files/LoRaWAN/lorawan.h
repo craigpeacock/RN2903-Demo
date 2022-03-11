@@ -50,7 +50,6 @@ extern "C" {
 #define JOIN_ACCEPT_DELAY1                          5000UL
 #define JOIN_ACCEPT_DELAY2                          6000UL
 #define MAX_FCNT_GAP                                16384
-#define MAX_MCAST_FCNT_GAP                          MAX_FCNT_GAP
 #define ADR_ACK_LIMIT                               64
 #define ADR_ACK_DELAY                               32
 #define ACK_TIMEOUT                                 2000
@@ -69,9 +68,6 @@ typedef enum
     INVALID_BUFFER_LENGTH                       ,
     MAC_PAUSED                                  ,
     NO_CHANNELS_FOUND                           ,
-    INVALID_CLASS                               ,
-    MCAST_PARAM_ERROR                           ,
-    MCAST_MSG_ERROR                             ,
 } LorawanError_t;                          
 
 typedef enum
@@ -80,8 +76,8 @@ typedef enum
     MAC_OK,             //LoRaWAN operation successful
     RADIO_NOT_OK,       //Radio operation failed
     RADIO_OK,           //Radio operation successful
-    INVALID_BUFFER_LEN, //during retransmission, we have changed SF and the buffer is too large
-    MCAST_RE_KEYING_NEEDED
+    INVALID_BUFFER_LEN,  //during retransmission, we have changed SF and the buffer is too large
+    MAC_REJOIN_NEEDED,  // Indication to the application that a rejoin is needed        
 } OpStatus_t;
 
 typedef enum
@@ -102,34 +98,25 @@ typedef enum
     ISM_EU433                         
 } IsmBand_t;
 
-typedef enum
-{
-    CLASS_A = 0,
-    CLASS_B,
-    CLASS_C,
-} LoRaClass_t;
-
 typedef union
 {
     uint32_t value;
     struct
-    {
-        unsigned macState :4;                        //determines the state of transmission (rx window open, between tx and rx, etc)
-        unsigned networkJoined :1;                   //if set, the network is joined
-        unsigned automaticReply :1;                  //if set, ACK and uplink packets sent due to  FPending will be sent immediately
-        unsigned adr :1;                             //if set, adaptive data rate is requested by server or application
-        unsigned silentImmediately :1;               //if set, the Mac command duty cycle request was received
-        unsigned macPause :1;                        //if set, the mac Pause function was called. LoRa modulation is not possible
-        unsigned rxDone :1;                          //if set, data is ready for reception
-        unsigned linkCheck :1;                       //if set, linkCheck mechanism is enabled
-        unsigned channelsModified :1;                //if set, new channels are added via CFList or NewChannelRequest command or enabled/disabled via Link Adr command
-        unsigned txPowerModified :1;                 //if set, the txPower was modified via Link Adr command
-        unsigned nbRepModified :1;                   //if set, the number of repetitions for unconfirmed frames has been modified
-        unsigned prescalerModified :1;               //if set, the prescaler has changed via duty cycle request
-        unsigned secondReceiveWindowModified :1;     //if set, the second receive window parameters have changed
-        unsigned rxTimingSetup :1;                   //if set, the delay between the end of the TX uplink and the opening of the first reception slot has changed
-        unsigned rejoinNeeded :1;                    //if set, the device must be rejoined as a frame counter issue happened
-        unsigned mcastEnable :1;                     //if set, the device is in multicast mode and can receive multicast messages
+    {  unsigned networkJoined :1;                //if set, the network is joined
+       unsigned macState :3;                      //determines the state of trasmission (rx window open, between tx and rx, etc)
+       unsigned automaticReply :1;               //if set, ACK and uplink packets sent due to  FPending will be sent immediately
+       unsigned adr :1;                           //if set, adaptive data rate is requested by server or application
+       unsigned silentImmediately :1;             //if set, the Mac command duty cycle request was received
+       unsigned macPause :1;                      //if set, the mac Pause function was called. LoRa modulation is not possible
+       unsigned rxDone :1;                        //if set, data is ready for reception
+       unsigned linkCheck :1;                     //if set, linkCheck mechanism is enabled
+       unsigned channelsModified :1;             //if set, new channels are added via CFList or NewChannelRequest command or enabled/disabled via Link Adr command
+       unsigned txPowerModified :1;              //if set, the txPower was modified via Link Adr command
+       unsigned nbRepModified :1;                 //if set, the number of repetitions for unconfirmed frames has been modified
+       unsigned prescalerModified :1;             //if set, the prescaler has changed via duty cycle request
+       unsigned secondReceiveWindowModified :1;   //if set, the second receive window parameters have changed
+       unsigned rxTimingSetup :1;                 //if set, the delay between the end of the TX uplink and the opening of the first reception slot has changed
+       unsigned rejoinNeeded :1;                 //if set, the device must be rejoined as a frame counter issue happened
     };
 } LorawanStatus_t;
 
@@ -195,127 +182,6 @@ LorawanError_t LORAWAN_Join(ActivationType_t activationTypeNew);
     LORAWAN_Send (UNCNF, 20, &dataToSend, sizeof(dataToSend));
 */
 LorawanError_t LORAWAN_Send (TransmissionType_t confirmed, uint8_t port,  void *buffer, uint8_t bufferLength);
-
-/**
- * @Summary
- *  Set the status of multicast.
- * @Description
- *  This function enables or disables the multicast operation.
- * @Preconditions
- *  Before enabling the multicast, one must join a network and the multicast parameters mult be set (mcastNetworkSessionKey, mcastApplicationSessionKey, mcastDeviceAddressNew)
- * @Param
-    None
- * @Returns
-    Function returns the status of the operation (LorawanError_t)
- * @Example
- */
-LorawanError_t LORAWAN_SetMcast(bool status);
-
-/**
- * @Summary
- *  Returns the status of multicast
- * @Description
- *  This function return the status of the multicast
- * @Preconditions
- *  None
- * @Param
-    None
- * @Returns
-    true: multicast is enabled
-    false: multicast is disabled
- * @Example
- */
-bool LORAWAN_GetMcast(void);
-
-/**
- * @Summary
- *  Multicast device address set.
- * @Description
- *  This function sets device multicast address.
- * @Preconditions
- *  None
- * @Param
-    mcastDeviceAddressNew - new value of the multicast device address.
- * @Returns
-    None
- * @Example
- */
-void LORAWAN_SetMcastDeviceAddress (uint32_t mcastDeviceAddressNew);
-
-/**
- * @Summary
- *  Multicast device address get.
- * @Description
- *  This function returns the value of the device multicast address.
- * @Preconditions
- *  None
- * @Param
-    None
- * @Returns
-    Device multicast address value.
- * @Example
- */
-uint32_t LORAWAN_GetMcastDeviceAddress (void);
-
-/**
- * @Summary
- *  Multicast network session key set.
- * @Description
- *  This function sets the value of the multicast network session key.
- * @Preconditions
- *  None
- * @Param
-    mcastNetworkSessionKeyNew - address where the new value is stored
- * @Returns
-    None
- * @Example
- */
-void LORAWAN_SetMcastNetworkSessionKey (uint8_t *mcastNetworkSessionKeyNew);
-
-/**
- * @Summary
- *  Multicast network session key get.
- * @Description
- *  This function gets the value of the multicast network session key.
- * @Preconditions
- *  None
- * @Param
-    mcastNetworkSessionKey - address where the value will be copied.
- * @Returns
-    None
- * @Example
- */
-void LORAWAN_GetMcastNetworkSessionKey (uint8_t *mcastNetworkSessionKey);
-
-/**
- * @Summary
- *  Multicast application session key set.
- * @Description
- *  This function sets the value of the multicast application session key.
- * @Preconditions
- *  None
- * @Param
-    mcastApplicationSessionKeyNew - address where the new value is stored
- * @Returns
-    None
- * @Example
- */
-void LORAWAN_SetMcastApplicationSessionKey (uint8_t *mcastApplicationSessionKeyNew);
-
-/**
- * @Summary
- *  Multicast application session key get.
- * @Description
- *  This function gets the value of the multicast application session key.
- * @Preconditions
- *  None
- * @Param
-    mcastApplicationSessionKey - address where the value will be copied
- * @Returns
-    None
- * @Example
- */
-void LORAWAN_GetMcastApplicationSessionKey (uint8_t *mcastApplicationSessionKey);
 
 /**
  * @Summary
@@ -413,63 +279,6 @@ void LORAWAN_SetDeviceAddress (uint32_t deviceAddressNew);
  * @Example
 */
 uint32_t LORAWAN_GetDeviceAddress (void);
-
-/**
-  @Summary
- * Sets LoRa class.
-  @Description
- * This function sets LoRaWAN stack class to A or C.
-  @Preconditions
- * None
-  @Param
- * class - new class
-  @Returns
- * None
-  @Example
-*/
-void LORAWAN_SetClass (LoRaClass_t deviceClass);
-
-/**
-  @Summary
- * Returns LoRa class.
-  @Description
- * This function returns LoRaWAN stack class.
-  @Preconditions
-  @Param
- * None
-  @Returns
- * Returns LoRa Class Type.
-  @Example
-*/
-LoRaClass_t LORAWAN_GetClass (void);
-
-/**
-  @Summary
- * Sets downlink counter for multicast communication.
-  @Description
- * This function sets the value for the counter used in multicast downlink communication.
-  @Preconditions
-  @Param
- * newCnt - new counter value;
-  @Returns
- * None
-  @Example
-*/
-void LORAWAN_SetMcastDownCounter(uint32_t newCnt);
-
-/**
-  @Summary
- * Gets downlink counter for multicast communication.
-  @Description
- * This function gets the value for the counter used in multicast downlink communication.
-  @Preconditions
-  @Param
- * None;
-  @Returns
- * Returns counter value.
-  @Example
-*/
-uint32_t LORAWAN_GetMcastDownCounter();
 
 /**
  * @Summary
@@ -1426,21 +1235,6 @@ void LORAWAN_ForceEnable (void);
  * @Example
 */
 void LORAWAN_Reset (void);
-
-/**
- * @Summary
-    Function returns the LORAWAN stack state.
- * @Description
-    This function returns the state of the LORAWAN stack.
- * @Preconditions
-    None
- * @Param
-    None
- * @Returns
-    Returns state of the LORAWAN stack (loRa.macStatus.macState).                       
- * @Example
-*/
-uint8_t LORAWAN_GetState(void);
 
 /**
  * @Summary

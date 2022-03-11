@@ -421,6 +421,8 @@ static void RADIO_WritePower(int8_t power)
 
 void RADIO_Init(uint8_t *radioBuffer, uint32_t frequency)
 {
+    char cnt=0;
+    
     RadioConfiguration.frequency = frequency;
     RadioConfiguration.frequencyDeviation = 25000;
     RadioConfiguration.bitRate = 50000;
@@ -511,7 +513,32 @@ void RADIO_Init(uint8_t *radioBuffer, uint32_t frequency)
 
     // Go to LoRa mode for this register to be set
     RADIO_WriteMode(MODE_SLEEP, MODULATION_LORA, 1);
+    
+    // Detect RN2903A and above modules:
+    //
+    // Enable pull-up resistor on RB3
+    // RB3 is connected to the RF switch on revH and higher
+    // RB3 is connected to the SX1276 DIO3 line on revF and lower
+    //
+    // revH modules will read RB3 high when pull-up enabled,
+    // older modules will read RB3 low when pull-up enabled
+    //
+    // Note:
+    // minimum pull-up current supplied by PIC is 25uA
+    // maximum supply current required for PE4259 (RF Switch) is 20uA
+    // This provides a minimum of 5uA margin 
+    RADIO_SW_POW_SetDigitalInput();
+    RADIO_SW_POW_SetPullup();
+    INTCON2bits.nRBPU = 0;
+    for (cnt=0; !(cnt&0x80); cnt++)
+    if (RADIO_SW_POW_GetValue())
+    {
+        RADIO_SW_POW_SetDigitalOutput();
+        break;
+    }
 
+    RADIO_SW_POW_ResetPullup();
+    INTCON2bits.nRBPU = 1;
 
     // Set LoRa max payload length
     RADIO_RegisterWrite(REG_LORA_PAYLOADMAXLENGTH, 0xFF);
@@ -756,6 +783,14 @@ RadioError_t RADIO_TransmitCW(void)
         return ERR_RADIO_BUSY;
     }
 
+    // The RadioTransmitCW function is guaranteed to turn on the radio after this
+    // point. The RF switch needs to be turned on by ~10us before the transmission
+    // begins. The SPI runs at 4 MHz so 10 us is the time it takes to move 8
+    // bytes between the MCU and the radio. The RadioTransmitCW function still has
+    // a lot of configuration to do from this point on, so it will certainly
+    // take longer than 10us. Turning on the RF switch now.
+    RADIO_SW_POW_SetHigh();
+
     RadioConfiguration.modulation = MODULATION_LORA;
 
     // Since we're interested in a transmission, rxWindowSize is irrelevant.
@@ -780,6 +815,10 @@ RadioError_t RADIO_StopCW(void)
     SystemBlockingWaitMs(100);
     RADIO_WriteMode(MODE_SLEEP, RadioConfiguration.modulation, 0);
     SystemBlockingWaitMs(100);
+
+    // Turning off the RF switch now.
+    RADIO_SW_POW_SetLow();
+
     return ERR_NONE;
 }
 
@@ -802,6 +841,14 @@ RadioError_t RADIO_Transmit(uint8_t *buffer, uint8_t bufferLen)
     {
         return ERR_DATA_SIZE;
     }
+
+    // The RadioTransmit function is guaranteed to turn on the radio after this
+    // point. The RF switch needs to be turned on by ~10us before the transmission
+    // begins. The SPI runs at 4 MHz so 10 us is the time it takes to move 8
+    // bytes between the MCU and the radio. The RadioTransmit function still has
+    // a lot of configuration to do from this point on, so it will certainly
+    // take longer than 10us. Turning on the RF switch now.
+    RADIO_SW_POW_SetHigh();
 
     SwTimerStop(RadioConfiguration.timeOnAirTimerId);
 
@@ -884,6 +931,14 @@ RadioError_t RADIO_ReceiveStart(uint16_t rxWindowSize)
         return ERR_RADIO_BUSY;
     }
 
+    // The RadioReceiveStart function is guaranteed to turn on the radio after this
+    // point. The RF switch needs to be turned on by ~10us before the transmission
+    // begins. The SPI runs at 4 MHz so 10 us is the time it takes to move 8
+    // bytes between the MCU and the radio. The RadioReceiveStart function still has
+    // a lot of configuration to do from this point on, so it will certainly
+    // take longer than 10us. Turning on the RF switch now.
+    RADIO_SW_POW_SetHigh();
+
     if (0 == rxWindowSize)
     {
         RADIO_WriteConfiguration(4);
@@ -954,6 +1009,9 @@ void RADIO_ReceiveStop(void)
     {
         RADIO_WriteMode(MODE_SLEEP, RadioConfiguration.modulation, 0);
         RadioConfiguration.flags &= ~RADIO_FLAG_RECEIVING;
+        
+		// Turning off the RF switch now.
+        RADIO_SW_POW_SetLow();
     }
 }
 
@@ -969,6 +1027,9 @@ static void RADIO_RxDone(void)
     {
         // Make sure the watchdog won't trigger MAC functions erroneously.
         SwTimerStop(RadioConfiguration.watchdogTimerId);
+
+        // Turning off the RF switch now.
+        RADIO_SW_POW_SetLow();
         
         // Read CRC info from received packet header
         i = RADIO_RegisterRead(REG_LORA_HOPCHANNEL);
@@ -1022,6 +1083,9 @@ static void RADIO_FSKPayloadReady(void)
         SwTimerStop(RadioConfiguration.watchdogTimerId);
         SwTimerStop(RadioConfiguration.fskRxWindowTimerId);
 
+        // Turning off the RF switch now.
+        RADIO_SW_POW_SetLow();
+
         HALSPICSAssert();
         HALSPISend(REG_FIFO);
         RadioConfiguration.dataBufferLen = HALSPISend(0xFF);
@@ -1067,6 +1131,10 @@ static void RADIO_RxTimeout(void)
 {
     // Make sure the watchdog won't trigger MAC functions erroneously.
     SwTimerStop(RadioConfiguration.watchdogTimerId);
+
+    // Turning off the RF switch now.
+    RADIO_SW_POW_SetLow();
+	
     RADIO_RegisterWrite(REG_LORA_IRQFLAGS, 1<<SHIFT7);
     // Radio went to STANDBY. Set sleep.
     RADIO_WriteMode(MODE_SLEEP, RadioConfiguration.modulation, 0);
@@ -1080,6 +1148,10 @@ static void RADIO_TxDone(void)
     uint32_t timeOnAir;
     // Make sure the watchdog won't trigger MAC functions erroneously.
     SwTimerStop(RadioConfiguration.watchdogTimerId);
+
+    // Turning off the RF switch now.
+    RADIO_SW_POW_SetLow();
+	
     RADIO_RegisterWrite(REG_LORA_IRQFLAGS, 1<<SHIFT3);
     RADIO_WriteMode(MODE_SLEEP, RadioConfiguration.modulation, 0);
     RadioConfiguration.flags &= ~RADIO_FLAG_TRANSMITTING;
@@ -1102,11 +1174,14 @@ static void RADIO_FSKPacketSent(void)
         RadioConfiguration.flags &= ~RADIO_FLAG_TRANSMITTING;
         // Make sure the watchdog won't trigger MAC functions erroneously.
         SwTimerStop(RadioConfiguration.watchdogTimerId);
+
+        // Turning off the RF switch now.
+        RADIO_SW_POW_SetLow();
+	
         // Clearing of the PacketSent interrupt is done on exiting Tx
         if ((RadioConfiguration.flags & RADIO_FLAG_TIMEOUT) == 0)
         {
             timeOnAir = TIME_ON_AIR_LOAD_VALUE - TICKS_TO_MS(SwTimerReadValue(RadioConfiguration.timeOnAirTimerId));
-            SwTimerStop(RadioConfiguration.timeOnAirTimerId);
             LORAWAN_TxDone((uint16_t)timeOnAir);
         }
     }
@@ -1369,6 +1444,10 @@ uint16_t RADIO_ReadRandom(void)
     uint8_t i;
     uint16_t retVal;
     retVal = 0;
+
+    // Turn on the RF switch.
+    RADIO_SW_POW_SetHigh();
+	
     // Mask all interrupts, do many measurements of RSSI
     RADIO_WriteMode(MODE_SLEEP, MODULATION_LORA, 1);
     RADIO_RegisterWrite(REG_LORA_IRQFLAGSMASK, 0xFF);
@@ -1379,6 +1458,10 @@ uint16_t RADIO_ReadRandom(void)
         retVal <<= SHIFT1;
         retVal |= RADIO_RegisterRead(REG_LORA_RSSIWIDEBAND) & 0x01;
     }
+
+    // Turn off the RF switch.
+    RADIO_SW_POW_SetLow();
+	
 
     // Return radio to sleep
     RADIO_WriteMode(MODE_SLEEP, MODULATION_LORA, 1);
@@ -1399,6 +1482,10 @@ static void RADIO_RxFSKTimeout(uint8_t param)
         RADIO_WriteMode(MODE_SLEEP, RadioConfiguration.modulation, 0);
         // Make sure the watchdog won't trigger MAC functions erroneously.
         SwTimerStop(RadioConfiguration.watchdogTimerId);
+
+        // Turning off the RF switch now.
+        RADIO_SW_POW_SetLow();
+	
         RadioConfiguration.flags &= ~RADIO_FLAG_RECEIVING;
         LORAWAN_RxTimeout();
     }
@@ -1409,6 +1496,10 @@ static void RADIO_WatchdogTimeout(uint8_t param)
 {
     RADIO_WriteMode(MODE_STANDBY, RadioConfiguration.modulation, 1);
     RADIO_WriteMode(MODE_SLEEP, RadioConfiguration.modulation, 0);
+
+    // Turning off the RF switch now.
+    RADIO_SW_POW_SetLow();
+	
     RadioConfiguration.flags |= RADIO_FLAG_TIMEOUT;
     if ((RadioConfiguration.flags & RADIO_FLAG_RECEIVING) != 0)
     {

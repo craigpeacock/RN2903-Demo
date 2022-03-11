@@ -62,11 +62,12 @@ void DIO3_ISR_Lora_Init(void)
 
 void DIO4_ISR_Lora_Init(void)
 {
+    IOCB5_SetInterruptHandler(DIO4_ISR_Lora);
 }
 
 void DIO5_ISR_Lora_Init(void)
 {
-    //INT0_SetInterruptHandler(DIO5_ISR_Lora);
+    INT0_SetInterruptHandler(DIO5_ISR_Lora);
 }
 
 void LORAWAN_PlatformInit(void)

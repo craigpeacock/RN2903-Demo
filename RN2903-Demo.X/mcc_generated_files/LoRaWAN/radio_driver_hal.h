@@ -62,7 +62,10 @@ uint8_t HALSPISend(uint8_t data);
 uint8_t HALDIO0PinValue(void);
 uint8_t HALDIO1PinValue(void);
 uint8_t HALDIO2PinValue(void);
+uint8_t HALDIO4PinValue(void);
 uint8_t HALDIO5PinValue(void);
+void HALEnableRFSwitch(uint8_t ifc);
+void HALDisableRFSwitch(uint8_t ifc);
 #ifdef	__cplusplus
 }
 #endif
