@@ -9,6 +9,8 @@
 #define ACTIVATE_OTAA
 //#define ACTIVATE_ABP
 
+static uint16_t seconds = 0;
+
 void RxData(uint8_t* pData, uint8_t dataLength, OpStatus_t status) { }
 void RxJoinResponse(bool status) { }
 
@@ -53,6 +55,29 @@ void TTN_SetUp(void)
     } 
 }
 
+void TMR3_1SecInterruptHandler(void)
+{
+    // The LoRaWAN Stack uses TMR1 for timing. While we could piggy back of 
+    // TMR1, we set up our own, TMR3. This allows the stack to be updated 
+    // without effecting our code. 
+    
+    // This ISR is called ever 1 second and can be used for sending LoRa Messages 
+    seconds++;
+    
+    if (seconds >= 60) {
+        // Sending message as Unconfirmed Transmission (UNCNF). Change to CNF 
+        // for Confirmed Transmission.
+        LorawanError_t result = LORAWAN_Send(UNCNF, 2, "Hello World", 11);
+        if (result == OK)     
+            printf("Sent message\r\n");
+        else if (result == NETWORK_NOT_JOINED)
+            printf("Unable to send message. No network\r\n");
+        else 
+            printf("Error %d sending message\r\n", result);
+        seconds = 0;
+    }
+}
+
 void main(void)
 {
     SYSTEM_Initialize();
@@ -86,6 +111,5 @@ void main(void)
         LORAWAN_Mainloop();
         // All other function calls of the user-defined
         // application must be made here
-        LORAWAN_Send(UNCNF, 2, "Hello World", 11);
     }
 }
