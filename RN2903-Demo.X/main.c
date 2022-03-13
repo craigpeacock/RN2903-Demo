@@ -11,8 +11,15 @@
 
 static uint16_t seconds = 0;
 
-void RxData(uint8_t* pData, uint8_t dataLength, OpStatus_t status) { }
-void RxJoinResponse(bool status) { }
+void RxData(uint8_t* pData, uint8_t dataLength, OpStatus_t status) 
+{ 
+    printf("Packet Received, %d bytes, status = %d\r\n", dataLength, status);
+}
+
+void RxJoinResponse(bool status) 
+{ 
+    printf("Join Response %s\r\n", status?"Successful":"Unsuccessful");
+}
 
 #ifdef ACTIVATE_OTAA
     // OTAA Keys:
