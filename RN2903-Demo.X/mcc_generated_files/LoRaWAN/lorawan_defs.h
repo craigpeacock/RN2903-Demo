@@ -44,7 +44,7 @@
 extern "C" {
 #endif
     
-#define DEBUG
+//#define DEBUG
 
 #define SHIFT0                                  (0)
 #define SHIFT1                                  (1)
