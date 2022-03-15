@@ -36,6 +36,7 @@
 #include "sw_timer.h"
 #include "interrupt_manager_lora_addons.h"
 #include <math.h>
+#include <stdio.h>
 
 #include "lorawan_na.h"
 
@@ -707,6 +708,9 @@ void LORAWAN_ReceiveWindow1Callback (uint8_t param)
         
         RADIO_ReleaseData();
         
+#ifdef DEBUG
+        printf("DataRate SF%d, Freq %ld\r\n",loRa.receiveWindow1Parameters.dataRate, loRa.receiveWindow1Parameters.frequency);
+#endif
         ConfigureRadioRx(loRa.receiveWindow1Parameters.dataRate, freq);
 
         RADIO_ReceiveStart(rxWindowSize[loRa.receiveWindow1Parameters.dataRate]);
@@ -991,12 +995,21 @@ LorawanError_t LORAWAN_RxDone (uint8_t *buffer, uint8_t bufferLength)
     FCnt_t tempRxFnctDn;    
 
     RADIO_ReleaseData();
+    
+#ifdef DEBUG
+            printf("LORAWAN_RxDone()\r\n");
+#endif
 
     if (loRa.macStatus.macPause == DISABLED)
     {
         mhdr.value = buffer[0];
         if ( (mhdr.bits.mType == FRAME_TYPE_JOIN_ACCEPT) && (loRa.activationParameters.activationType == 0) )
         {
+#ifdef DEBUG
+            printf("JOIN_ACCEPT Frame\r\n");
+#endif
+            
+            
             temp = bufferLength - 1; //MHDR not encrypted
             while (temp > 0) 
             {                

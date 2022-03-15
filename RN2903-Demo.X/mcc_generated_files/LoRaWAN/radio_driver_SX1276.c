@@ -44,6 +44,7 @@
 #include "radio_driver_hal.h"
 #include "lorawan_radio.h"
 #include "sw_timer.h"
+#include <stdio.h>
 
 #define TIME_ON_AIR_LOAD_VALUE              ((uint32_t)20000)
 #define WATCHDOG_DEFAULT_TIME               ((uint32_t)15000)
@@ -827,6 +828,10 @@ RadioError_t RADIO_Transmit(uint8_t *buffer, uint8_t bufferLen)
     uint8_t regValue;
     uint8_t i;
 
+#ifdef DEBUG
+    printf("RADIO_Transmit() DataRate SF%d, Freq %ld\r\n", RadioConfiguration.dataRate, RadioConfiguration.frequency);
+#endif
+    
     if ((RadioConfiguration.flags & RADIO_FLAG_RXDATA) != 0)
     {
         return ERR_BUFFER_LOCKED;
