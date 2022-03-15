@@ -14,7 +14,7 @@ mcc_generated_files/LoRaWAN/lorawan_defs.h had been modified to support the AU91
 
 # March 2022 Update
 
-While Microchip has never updated the LoRaWAN Library in MPLAB Code Configurator (MCC), recently they released the source code for 'UART Modules' and this uses the same stack. We have copied/updated to the mature stack that is running on the RN2903 SA AU915 v1.0.3 modules. 
+While Microchip has never updated the LoRaWAN Library in MPLAB Code Configurator (MCC), recently they released the source code for the 'UART Modules' and this uses the same stack. We have copied/updated to the mature stack that is running on the RN2903 SA AU915 v1.0.3 modules. 
 * https://github.com/MicrochipTech/RN2xx3_LORAWAN_FIRMWARE
 
 Please note the project requires the XC8 V1.45 Cross Compiler. Using V2.x of the compiler appears to result in timing issues, i.e. the Receive Window 1 and 2 can be either increased four fold, or fails to operate at all. 
