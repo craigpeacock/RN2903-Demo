@@ -19,3 +19,33 @@ While Microchip has never updated the LoRaWAN Library in MPLAB Code Configurator
 
 Please note the project requires the XC8 V1.45 Cross Compiler. Using V2.x of the compiler appears to result in timing issues, i.e. the Receive Window 1 and 2 can be either increased four fold, or fails to operate at all. 
 
+# Output
+
+Example session operating on the Helium Network:
+
+```
+RN2903 Test Program
+Beyondlogic.org
+Channel 08 Enabled: 916800000Hz
+Channel 09 Enabled: 917000000Hz
+Channel 10 Enabled: 917200000Hz
+Channel 11 Enabled: 917400000Hz
+Channel 12 Enabled: 917600000Hz
+Channel 13 Enabled: 917800000Hz
+Channel 14 Enabled: 918000000Hz
+Channel 15 Enabled: 918200000Hz
+Channel 65 Enabled: 917500000Hz
+Join Response Successful
+Sent message
+Packet Received, 0 bytes, status = 1
+Sent message
+Packet Received, 0 bytes, status = 1
+Sent message
+Packet Received, 0 bytes, status = 1
+Sent message
+Packet Received, 0 bytes, status = 1
+```
+
+Helium Console:
+
+![Helium Device Console](https://beyondlogic.org/i/Helium_EventLog.png)
