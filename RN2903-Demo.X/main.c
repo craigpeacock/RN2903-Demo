@@ -41,15 +41,19 @@ void RxData(uint8_t* pData, uint8_t dataLength, OpStatus_t status)
 
 void RxJoinResponse(bool status) 
 { 
+    uint32_t devAddr;
     printf("Join Response %s\r\n", status?"Successful":"Unsuccessful");
+    if (status) {
+        devAddr = LORAWAN_GetDeviceAddress();
+        //printf doesn't support 32bit, hence we split this into two 16bits.
+        printf("DevAddr 0x%04X%04X\r\n", (uint16_t)(devAddr >> 16), (uint16_t) devAddr & 0xFFFF);
+    }
 }
 
 #ifdef ACTIVATE_OTAA
     // OTAA Keys:
     uint8_t applicationEuiNew[8]  = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-    //uint8_t applicationKeyNew[16] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-    uint8_t applicationKeyNew[16] = { 0xDE, 0xF3, 0xC6, 0x54, 0xA8, 0x33, 0x05, 0x14, 0x75, 0xBA, 0xC2, 0x7D, 0x52, 0xE4, 0xEC, 0x7B};
-    
+    uint8_t applicationKeyNew[16] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
     // Each RN2903 module includes a Microchip 24AA02E64T 2Kb I2C Serial EEPROM 
     // with Pre-Programmed EUI-64? MAC ID. This deviceEui can be obtained from
     // the console at boot. e.g
