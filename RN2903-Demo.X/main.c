@@ -11,6 +11,29 @@
 
 static uint16_t seconds = 0;
 
+void System_GetEepromEui(uint8_t *eid)
+{
+    I2C1_MESSAGE_STATUS status;
+
+    *eid = 0xF8;
+    I2C1_MasterWrite(eid, 1, 0x50, &status);
+    while(status == I2C1_MESSAGE_PENDING);
+
+    I2C1_MasterRead(eid, 8, 0x50, &status);
+    while(status == I2C1_MESSAGE_PENDING);
+    if (status != I2C1_MESSAGE_COMPLETE) {
+        printf("Error reading EUI64\r\n");
+    }
+}
+
+void System_PrintEui(uint8_t *eid)
+{
+    printf("EUI64 = 0x");
+    for (uint8_t i = 0; i <= 7; i++)
+        printf("%02X", eid[i]);
+    printf("\r\n");
+}
+
 void RxData(uint8_t* pData, uint8_t dataLength, OpStatus_t status) 
 { 
     printf("Packet Received, %d bytes, status = %d\r\n", dataLength, status);
@@ -24,8 +47,16 @@ void RxJoinResponse(bool status)
 #ifdef ACTIVATE_OTAA
     // OTAA Keys:
     uint8_t applicationEuiNew[8]  = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-    uint8_t deviceEuiNew[8]       = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-    uint8_t applicationKeyNew[16] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+    //uint8_t applicationKeyNew[16] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+    uint8_t applicationKeyNew[16] = { 0xDE, 0xF3, 0xC6, 0x54, 0xA8, 0x33, 0x05, 0x14, 0x75, 0xBA, 0xC2, 0x7D, 0x52, 0xE4, 0xEC, 0x7B};
+    
+    // Each RN2903 module includes a Microchip 24AA02E64T 2Kb I2C Serial EEPROM 
+    // with Pre-Programmed EUI-64? MAC ID. This deviceEui can be obtained from
+    // the console at boot. e.g
+    // RN2903 Demo Program
+    // EUI64 = 0x0004A3xxxxxxxxxx
+    // Uncomment if you want to override pre-programmed EUI.
+    //uint8_t deviceEuiNew[8]       = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 #endif
 
 #ifdef ACTIVATE_ABP
@@ -87,6 +118,8 @@ void TMR3_1SecInterruptHandler(void)
 
 void main(void)
 {
+    uint8_t EUI64[8];
+    
     SYSTEM_Initialize();
     INTERRUPT_GlobalInterruptEnable();
     INTERRUPT_PeripheralInterruptEnable();
@@ -95,6 +128,9 @@ void main(void)
     __delay_ms(1000);
     printf("\r\nRN2903 Test Program\r\nBeyondlogic.org\r\n");
    
+    System_GetEepromEui(EUI64);
+    System_PrintEui(EUI64);
+    
     LORAWAN_Reset();
     LORAWAN_Init(RxData, RxJoinResponse);
     TTN_SetUp();
@@ -107,8 +143,9 @@ void main(void)
 #endif
     
 #ifdef ACTIVATE_OTAA
+    LORAWAN_SetDeviceEui(EUI64);            // Use EUI64 from module's EEPROM
+    //LORAWAN_SetDeviceEui(deviceEuiNew);   // Uncomment to load hard-coded EUI
     LORAWAN_SetApplicationEui(applicationEuiNew);
-    LORAWAN_SetDeviceEui(deviceEuiNew);
     LORAWAN_SetApplicationKey(applicationKeyNew);    
     LORAWAN_Join(OTAA);
 #endif
