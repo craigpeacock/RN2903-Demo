@@ -1,5 +1,6 @@
 
 #include "mcc_generated_files/mcc.h"
+#include "shtc3.h"
 
 // Sample code supports both methods of activation
 //  * OTAA - Over The Air Activation (Preferred)
@@ -10,6 +11,7 @@
 //#define ACTIVATE_ABP
 
 static uint16_t seconds = 0;
+static uint8_t SendMessage = 0;
 
 void System_GetEepromEui(uint8_t *eid)
 {
@@ -47,6 +49,11 @@ void RxJoinResponse(bool status)
         devAddr = LORAWAN_GetDeviceAddress();
         //printf doesn't support 32bit, hence we split this into two 16bits.
         printf("DevAddr 0x%04X%04X\r\n", (uint16_t)(devAddr >> 16), (uint16_t) devAddr & 0xFFFF);
+        
+        // Trigger first message to be sent immediately after joining. 
+        SendMessage = true;
+        // Reset timer to ensure time to next period is accurate 
+        seconds = 0;
     }
 }
 
@@ -106,17 +113,10 @@ void TMR3_1SecInterruptHandler(void)
     // This ISR is called ever 1 second and can be used for sending LoRa Messages 
     seconds++;
     
-    if (seconds >= 60) {
-        // Sending message as Unconfirmed Transmission (UNCNF). Change to CNF 
-        // for Confirmed Transmission.
-        LorawanError_t result = LORAWAN_Send(UNCNF, 2, "Hello World", 11);
-        if (result == OK)     
-            printf("Sent message\r\n");
-        else if (result == NETWORK_NOT_JOINED)
-            printf("Unable to send message. No network\r\n");
-        else 
-            printf("Error %d sending message\r\n", result);
+    if (seconds >= 600) {
         seconds = 0;
+        // As this is an ISR, flag message to be sent from mainloop.
+        SendMessage = true;
     }
 }
 
@@ -153,11 +153,35 @@ void main(void)
     LORAWAN_SetApplicationKey(applicationKeyNew);    
     LORAWAN_Join(OTAA);
 #endif
-    
+ 
     while (1)
     {
         LORAWAN_Mainloop();
         // All other function calls of the user-defined
         // application must be made here
+        
+        if (SendMessage) {
+            uint16_t payload[2];
+    
+            shtc3_wakeup();
+            shtc3_GetTempAndHumidity(&payload[0], &payload[1]);
+            shtc3_sleep();
+            
+            // Using floats adds approximately 6.5k bytes (10% of program space)  
+            //printf("Temp %.02f\r\n", shtc3_convert_temp(payload[0])); 
+            //printf("RH %.01f\r\n", shtc3_convert_humd(payload[1]));
+        
+            // Sending message as Unconfirmed Transmission (UNCNF). Change to CNF 
+            // for Confirmed Transmission.
+            LorawanError_t result = LORAWAN_Send(UNCNF, 2, &payload, 4);
+            if (result == OK)     
+                printf("Sent Message\r\n");
+            else if (result == NETWORK_NOT_JOINED)
+                printf("Unable to send message. No network\r\n");
+            else 
+                printf("Error %d sending message\r\n", result);
+            
+            SendMessage = 0;
+        }
     }
 }
