@@ -80,9 +80,13 @@ void interrupt INTERRUPT_InterruptManager (void)
         {
             TMR1_ISR();
         } 
-        else
+        else if(PIE1bits.SSP1IE == 1 && PIR1bits.SSP1IF == 1)
         {
-            //Unhandled Interrupt
+            I2C1_ISR();
+        }
+        else if(PIE2bits.BCL1IE == 1 && PIR2bits.BCL1IF == 1)
+        {
+            I2C1_BusCollisionISR();
         }
     }      
     else

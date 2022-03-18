@@ -52,6 +52,7 @@
 #include <stdbool.h>
 #include "interrupt_manager.h"
 #include "spi2.h"
+#include "i2c1.h"
 #include "tmr3.h"
 #include "tmr1.h"
 #include "ext_int.h"
