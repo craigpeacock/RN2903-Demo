@@ -47,8 +47,27 @@
 
 const uint8_t rxWindowSize[] = {5, 5, 7, 12, 22, 0, 0, 0, 5, 5, 7, 12, 22, 42};
 
-// Max Payload Size 
-const uint8_t maxPayloadSize[14] = {11, 53, 129, 242, 242, 0, 0, 0, 53, 129, 242, 242, 242, 242};
+
+#ifdef AU915
+    // Max Payload Size 
+    // As per RP002-1.0.2 LoRaWAN Regional Parameters, Table 45: AU915-928 maximum payload size
+    const uint8_t maxPayloadSize[14] = {51, 51, 51, 115, 222, 222, 222, 0, 53, 129, 242, 242, 242, 242};
+    #define maxDR DR6
+
+    // Spreading factor possibilities
+    // Table 41: AU915-928 DataRate table
+    static const uint8_t spreadingFactor[] = {12, 11, 10, 9, 8, 7, 8, 0, 12, 11, 10, 9, 8, 7};
+#endif
+
+#ifdef US915
+    const uint8_t maxPayloadSize[14] = {11, 53, 129, 242, 242, 0, 0, 0, 53, 129, 242, 242, 242, 242};
+    #define maxDR DR4
+
+    // Spreading factor possibilities
+    static const uint8_t spreadingFactor[] = {10, 9, 8, 7, 8, 0, 0, 0, 12, 11, 10, 9, 8, 7};
+#endif
+
+
 
 // Channels by ism band
 ChannelParams_t Channels[MAX_US_CHANNELS];
@@ -72,9 +91,6 @@ typedef enum
     TXPOWER_INDEX_10dBm,        // pwridx 10
             
 }TxPower915Index_t;
-
-// Spreading factor possibilities
-static const uint8_t spreadingFactor[] = {10, 9, 8, 7, 8, 0, 0, 0, 12, 11, 10, 9, 8, 7};
 
 static const ChannelParams_t DefaultChannels915 [MAX_US_CHANNELS] =   {  LC0_915,  LC1_915,  LC2_915,  LC3_915,  LC4_915,  LC5_915,
                                                                          LC6_915,  LC7_915,  LC8_915,  LC9_915,  LC10_915, LC11_915,
@@ -439,7 +455,7 @@ LorawanError_t ValidateDataRate (uint8_t dataRate)
 {
     LorawanError_t result = OK;
 
-    if (dataRate > DR4)
+    if (dataRate > maxDR)
     {
         result = INVALID_PARAMETER;
     }
@@ -556,13 +572,13 @@ uint8_t* ExecuteLinkAdr (uint8_t *ptr, uint8_t *commandsLen)
 
                             case 4:
                                 {
-                                    auxMaxDataRate = DR4;
+                                    auxMaxDataRate = maxDR;
                                 } break;
 
                             case 7:
                                 {
-                                    auxMinDataRate = DR4;
-                                    auxMaxDataRate = DR4;
+                                    auxMinDataRate = maxDR;
+                                    auxMaxDataRate = maxDR;
                                     if(channelMask == 0)    //Cannot disable all channels
                                         channelAck  = false;
                                 } break;
@@ -581,9 +597,9 @@ uint8_t* ExecuteLinkAdr (uint8_t *ptr, uint8_t *commandsLen)
                                             auxMaxDataRate = Channels[i].dataRange.max;
                                         }
                                     }
-                                    if (channelMask != 0)    // if there is at least one channel enabled with DR4
+                                    if (channelMask != 0)    // if there is at least one channel enabled with maxDR
                                     {
-                                        auxMaxDataRate = DR4;
+                                        auxMaxDataRate = maxDR;
                                     }
                                 } break;
                         }
@@ -894,7 +910,7 @@ LorawanError_t SelectChannelForTransmission (bool transmissionType)  // transmis
             loRa.receiveWindow1Parameters.dataRate = DR13;
         }
     }
-    else   // join request message, first should search between channels 0 - 63 using DR0, then 64 - 71 using DR4, and so on
+    else   // join request message, first should search between channels 0 - 63 using DR0, then 64 - 71 using maxDR, and so on
     {
         if (loRa.lorawanMacStatus.alternativeChannelUs == 0)
         {
@@ -906,10 +922,10 @@ LorawanError_t SelectChannelForTransmission (bool transmissionType)  // transmis
         }
         else
         {
-            loRa.currentDataRate = DR4; // this is a guard for join request, as the 500 kHz channels are only on DR4
+            loRa.currentDataRate = maxDR; // this is a guard for join request, as the 500 kHz channels are only on maxDR
             result = SearchAvailableChannel (MAX_US_CHANNELS_BANDWIDTH_500, transmissionType, &channelIndex);
-            RADIO_SetSpreadingFactor (SF_8); // JoinReq message - alternatively on a random 125 kHz channel amongst the 64 channels defined using  DR0 and a random 500 kHz channel amongst the 8 channels defined using DR4.
-            loRa.receiveWindow1Parameters.dataRate = DR4 + 10 - loRa.offset;
+            RADIO_SetSpreadingFactor (SF_8); // JoinReq message - alternatively on a random 125 kHz channel amongst the 64 channels defined using  DR0 and a random 500 kHz channel amongst the 8 channels defined using maxDR.
+            loRa.receiveWindow1Parameters.dataRate = maxDR + 10 - loRa.offset;
             if (loRa.receiveWindow1Parameters.dataRate >= 14)
             {
                 loRa.receiveWindow1Parameters.dataRate = DR13;
@@ -1062,9 +1078,9 @@ static LorawanError_t ValidateDataRange (uint8_t channelId, uint8_t dataRangeNew
     dataRateMax = (dataRangeNew & FIRST_NIBBLE) >> SHIFT4;
 
     if ( (ValidateDataRate (dataRateMax) != OK) || (ValidateDataRate (dataRateMin) != OK ) || (dataRateMax < dataRateMin) || 
-         ((channelId < MAX_US_CHANNELS_BANDWIDTH_125) && ((dataRateMin == DR4) || (dataRateMax == DR4))) ||
-         ((channelId >= MAX_US_CHANNELS_BANDWIDTH_125) && (channelId < MAX_US_CHANNELS) && (dataRateMin != DR4)) || 
-         ((channelId >= MAX_US_CHANNELS_BANDWIDTH_125) && (channelId < MAX_US_CHANNELS) && (dataRateMax != DR4)))
+         ((channelId < MAX_US_CHANNELS_BANDWIDTH_125) && ((dataRateMin == maxDR) || (dataRateMax == maxDR))) ||
+         ((channelId >= MAX_US_CHANNELS_BANDWIDTH_125) && (channelId < MAX_US_CHANNELS) && (dataRateMin != maxDR)) || 
+         ((channelId >= MAX_US_CHANNELS_BANDWIDTH_125) && (channelId < MAX_US_CHANNELS) && (dataRateMax != maxDR)))
         {
             result = INVALID_PARAMETER;
         }
@@ -1166,25 +1182,37 @@ static void UpdateCurrentDataRateAfterDataRangeChanges (void)
 static uint32_t GenerateUSFrequency1 (uint8_t channelIndex)   // channelIndex should be a random number between 0 and 63, generated with the random function
 {
     uint32_t channelFrequency;
-
+#ifdef AU915
+    channelFrequency = AU915_UPSTREAM_CH0 + FREQ_200KHZ * channelIndex;
+#endif
+#ifdef US915
     channelFrequency = NA915_UPSTREAM_CH0 + FREQ_200KHZ * channelIndex;
+#endif
     return channelFrequency;
 }
 
-// Generates a frequency for US upstream, utilizing LoRa 500 kHz BW at SF8 (DR4) starting at 903.0 MHz and incrementing linearly by 1.6 MHz to 914.2 MHz
+// Generates a frequency for US upstream, utilizing LoRa 500 kHz BW at SF8 (maxDR) starting at 903.0 MHz and incrementing linearly by 1.6 MHz to 914.2 MHz
 static uint32_t GenerateUSFrequency2 (uint8_t channelIndex)
 {
     uint32_t channelFrequency;
-
+#ifdef AU915
+    channelFrequency = AU915_UPSTREAM_CH64 + FREQ_1600KHZ * (channelIndex - MAX_US_CHANNELS_BANDWIDTH_125);
+#endif
+#ifdef US915
     channelFrequency = NA915_UPSTREAM_CH64 + FREQ_1600KHZ * (channelIndex - MAX_US_CHANNELS_BANDWIDTH_125);
+#endif
     return channelFrequency;
 }
 
 static uint32_t GenerateUSFrequencyReception (uint8_t channelIndex)
 {
     uint32_t channelFrequency;
-    
+#ifdef AU915
+    channelFrequency = AU915_DOWNSTREAM_CH0 + FREQ_600KHZ * channelIndex;
+#endif
+#ifdef US915
     channelFrequency = NA915_DOWNSTREAM_CH0 + FREQ_600KHZ * channelIndex;
+#endif
     return channelFrequency;
 }
 
