@@ -213,7 +213,7 @@ RadioDataRate_t RADIO_GetSpreadingFactor(void);
 
 uint16_t RADIO_ReadRandom(void);
 int8_t RADIO_GetPacketSnr(void);
-int8_t RADIO_GetPacketRSSI(void);
+int16_t RADIO_GetPacketRSSI(void);
 
 
 void RADIO_RegisterWrite(uint8_t reg, uint8_t value);

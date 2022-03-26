@@ -1115,7 +1115,9 @@ static void RADIO_FSKPayloadReady(void)
 {
     uint8_t irqFlags;
     uint8_t i;
-
+    int16_t instRSSI = -(RADIO_RegisterRead(REG_FSK_RSSIVALUE)>>1) ;
+    RadioConfiguration.packetRSSI = instRSSI ;
+    
     irqFlags = RADIO_RegisterRead(REG_FSK_IRQFLAGS2);
     if ((1<<SHIFT2) == (irqFlags & (1<<SHIFT2)))
     {
@@ -1602,7 +1604,7 @@ int8_t RADIO_GetPacketSnr(void)
     return RadioConfiguration.packetSNR;
 }
 
-int8_t RADIO_GetPacketRSSI(void)
+int16_t RADIO_GetPacketRSSI(void)
 {
     return RadioConfiguration.packetRSSI;
 }

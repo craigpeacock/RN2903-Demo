@@ -50,7 +50,7 @@ extern "C" {
 
 volatile uint8_t timerOverflow;
 volatile uint32_t ticksToScheduledInterrupt;
-volatile uint16_t reloadVal;
+volatile uint32_t reloadVal;
 volatile uint32_t ticksAdded;
     
 void TMR_ISR_lora(void);
