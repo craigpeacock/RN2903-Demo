@@ -210,6 +210,7 @@ typedef struct
     uint8_t syncWord;
     bool rxDnFrame;
     bool macAnswerPending;
+    uint32_t abdTimeout;
 } LoRa_t;
 
 extern LoRa_t loRa;

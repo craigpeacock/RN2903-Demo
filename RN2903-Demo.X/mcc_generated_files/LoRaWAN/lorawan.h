@@ -1341,6 +1341,12 @@ LorawanError_t LORAWAN_SetChannelIdStatus (uint8_t channelId, bool statusNew);
 */
 bool LORAWAN_GetChannelIdStatus (uint8_t channelId);
 
+
+void     LORAWAN_SetABDTimeout(uint32_t abdTimeout);
+uint32_t LORAWAN_GetABDTimeout(void);
+
+
+
 /**
  * @Summary
     Function pauses LoRaWAN stack.
@@ -1431,6 +1437,36 @@ void LORAWAN_ForceEnable (void);
  * @Example
 */
 void LORAWAN_Reset (void);
+
+/**
+ * @Summary
+    Function returns the configured Receive Offset.
+ * @Description
+    This function returns the receive offset
+ * @Preconditions
+    None
+ * @Param
+    None
+ * @Returns
+    Returns lora.offset                      
+ * @Example
+*/
+uint8_t LORAWAN_GetReceiveOffset(void);
+
+/**
+ * @Summary
+    Function sets receive offset
+ * @Description
+    This function sets receive offset.
+ * @Preconditions
+    None
+ * @Param
+    None
+ * @Returns
+    None                       
+ * @Example
+*/
+void LORAWAN_SetReceiveOffset(uint8_t);
 
 /**
  * @Summary

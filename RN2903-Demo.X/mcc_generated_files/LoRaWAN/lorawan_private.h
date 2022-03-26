@@ -324,7 +324,7 @@ uint8_t rxParamSetupAns;
 // Callback functions
 void LORAWAN_ReceiveWindow1Callback (uint8_t param);
 
-void LORAWAN_ReceiveWindow2Callback (uint8_t param);
+reentrant void LORAWAN_ReceiveWindow2Callback (uint8_t param);
 
 void LORAWAN_LinkCheckCallback (uint8_t param);
 

@@ -67,6 +67,12 @@ extern "C" {
 #define TMR_CallBack                        TMR1_CallBack
 #define TMR_SetInterruptHandler             TMR1_SetInterruptHandler
 #define TMR_DefaultInterruptHandler         TMR1_DefaultInterruptHandler
+#define TMR_CKPS                            (T1CONbits.T1CKPS)
+#define TMR_CKPS_Value                      (TMR_CKPS ? TMR_CKPS : 0)
+#define TMR_RUNNING                         (T1CONbits.TMR1ON ? 1 : 0)
+    
+#define TMR_SLEEP_PS                        3
+#define TMR_MASK                            (0x0000ffffUL << TMR_CKPS_Value)
 
 
 

@@ -73,6 +73,9 @@
     INTERRUPT_GlobalInterruptDisable();
  */
 #define INTERRUPT_GlobalInterruptDisable() (INTCONbits.GIE = 0)
+
+#define INTERRUPT_GlobalInterruptStatus()   (INTCONbits.GIE ? 1 : 0)
+#define INTERRUPT_GlobalInterruptSet(n)     (INTCONbits.GIE = n)
 /**
  * @Param
     none

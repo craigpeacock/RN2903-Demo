@@ -47,6 +47,7 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 #include "lorawan_defs.h"
+#include "mcc_lora_config.h"
 
 #define MAX_TIMERS                  20
 
@@ -61,25 +62,29 @@ extern "C" {
 #define MS_TO_TICKS(n)                                  ((n) < MS_TO_TICKS_LONG_THRESHOLD ? MS_TO_TICKS_SHORT(n) : MS_TO_TICKS_LONG(n) )
 #define TICKS_TO_MS(n)                                  ((n) < TICKS_TO_MS_LONG_THRESHOLD ? TICKS_TO_MS_SHORT(n) : TICKS_TO_MS_LONG(n) )
     
-#define HW_MAX_TIMER_VAL                                ((uint32_t)0x10000)
+#define HW_MAX_TIMER_VAL                                ((uint32_t)0x10000 << TMR_CKPS_Value)
 
-void SystemBlockingWaitMs(uint32_t ms);
-void SystemTimerInit(void);
+void        SystemBlockingWaitMs(uint32_t ms);
+void        SystemTimerInit(void);
 
-uint8_t SwTimerCreate(void);
-void SwTimerSetCallback(uint8_t timerId, void (*callback)(uint8_t), uint8_t callbackParameter);
-void SwTimerSetTimeout(uint8_t timerId, uint32_t msTimeout);
-uint32_t SwTimerReadValue(uint8_t timerId);
-uint8_t SwTimerIsRunning(uint8_t timerId);
-void SwTimerStart(uint8_t timerId);
-void SwTimerStop(uint8_t timerId);
-void SwTimersExecute(void);
-uint8_t SwTimersCanSleep(void);
-uint32_t SwTimersInterrupt(void);
+uint8_t     SwTimerCreate(void);
+void        SwTimerSetCallback(uint8_t timerId, void (*callback)(uint8_t), uint8_t callbackParameter);
+void        SwTimerSetCallbackParam(uint8_t timerId, uint8_t newCallBackParameter);
+uint8_t     SwTimerDecCallbackParam(uint8_t timerId);
+void        SwTimerSetTimeout(uint8_t timerId, uint32_t msTimeout);
+uint32_t    SwTimerReadValue(uint8_t timerId);
+void        SwTimerStart(uint8_t timerId);
+void        SwTimerStop(uint8_t timerId);
+void        SwTimersExecute(void);
+uint8_t     SwTimersCanSleep(void);
+uint32_t    SwTimersInterrupt(void);
     
-void TMR_OverrideRemaining(uint32_t ticksRemaining);
-uint32_t TMR_GetDeltaTime(void);
-uint16_t TMR_SwapTimer(uint16_t timerVal);
+void        TMR_OverrideRemaining(uint32_t ticksRemaining);
+uint32_t    TMR_GetDeltaTime(void);
+uint32_t    TMR_SwapTimer(uint32_t timerVal);
+
+void        SwTimerSetPS(uint8_t newPS);
+
 
 #ifdef	__cplusplus
 }

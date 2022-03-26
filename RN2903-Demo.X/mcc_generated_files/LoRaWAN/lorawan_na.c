@@ -37,12 +37,12 @@
 #include "sw_timer.h"
 #include "lorawan_na.h"
 
-#ifdef DEBUGLINKADR
+#if defined(DEBUGLINKADR) || defined(DEBUGRX2TICKS)
 // debug bct
 #include "../../parser/parser.h"
 #include "../../parser/parser_tsp.h"
 #include "../../parser/parser_utils.h"
-#endif // DEBUGLINKADR
+#endif // defined(DEBUGLINKADR) || defined(DEBUGRX2TICKS)
 /****************************** VARIABLES *************************************/
 
 const uint8_t rxWindowSize[] = {5, 5, 7, 12, 22, 0, 0, 0, 5, 5, 7, 12, 22, 42};
@@ -67,8 +67,7 @@ typedef enum
     TXPOWER_INDEX_22dBm,        // pwridx 4
     TXPOWER_INDEX_20dBm,        // pwridx 5 default
     TXPOWER_INDEX_18dBm,        // pwridx 6
-    TXPOWER_INDEX_16dBm,        // pwridx 7
-    TXPOWER_INDEX_14dBm,        // pwridx 8
+    TXPOWER_INDEX_16dBm,        // pwridx 7 TXPOWER_INDEX_14dBm,        // pwridx 8
     TXPOWER_INDEX_12dBm,        // pwridx 9
     TXPOWER_INDEX_10dBm,        // pwridx 10
             
@@ -359,6 +358,18 @@ void LORAWAN_TxDone (uint16_t timeOnAir)
 
             SwTimerStart(loRa.receiveWindow1TimerId);
             SwTimerStart(loRa.receiveWindow2TimerId);
+#if defined(DEBUGRX2TICKS)
+   // debug bct
+    {
+    uint8_t debug_buf[25];
+    strcpy(debug_buf, "### LORAWAN_TxDone:");
+//    uint32_t Rx2Ticks = MS_TO_TICKS_SHORT(loRa.protocolParameters.receiveDelay2 + rxWindowOffset[loRa.receiveWindow2Parameters.dataRate]);
+//    Parser_IntArrayToHexAscii(sizeof(Rx2Ticks), &Rx2Ticks, (debug_buf + strlen(debug_buf)));
+    uint32_t rx2remaining= SwTimerReadValue(loRa.receiveWindow2TimerId);
+    Parser_IntArrayToHexAscii(4, (uint8_t*)&rx2remaining, (debug_buf + strlen(debug_buf)));
+    Parser_TxAddReply(debug_buf, strlen(debug_buf));
+    }
+#endif // DEBUGRX2TICKS
         }
 
         if (CLASS_C == loRa.deviceClass)
@@ -475,11 +486,11 @@ uint8_t* ExecuteLinkAdr (uint8_t *ptr, uint8_t *commandsLen)
 
     ptr--;      // backup to include the MAC CID
 
-#ifdef DEBUGLINKADR
+#if defined(DEBUGLINKADR)
    // debug bct
     {
-    uint8_t debug_buf[200];
-    strcpy(debug_buf, "ExecuteLinkAdr::ptr=");
+    uint8_t debug_buf[100];
+    strcpy(debug_buf, "### ExecuteLinkAdr::ptr=");
     Parser_IntArrayToHexAscii((commandsLen - ptr), ptr, (debug_buf + strlen(debug_buf)));
     Parser_TxAddReply(debug_buf, strlen(debug_buf));
     }
@@ -487,17 +498,15 @@ uint8_t* ExecuteLinkAdr (uint8_t *ptr, uint8_t *commandsLen)
         
     while(ptr < commandsLen)
     {
-        if((ptr + LINKADR_CMD_LEN) < commandsLen)
+        // if the buffer length is longer than a LINK_ADR_CID command and 
+        // the next command in the buffer is a LINK_ADR_CID command
+        // this is a LinkADRReq block
+        if(((ptr + LINKADR_CMD_LEN) < commandsLen) && (LINK_ADR_CID == *(ptr+LINKADR_CMD_LEN)))
         {
-            nextCommand = *(ptr+LINKADR_CMD_LEN);
-            //If next command is LINK ADR, just process the Channel mask commands
-            if(nextCommand == LINK_ADR_CID)
-            {
-                block++;
-                redundancy = (Redundancy_t*) (ptr+LINKADR_REDUNDANCY_OFFSET);
-                if( ValidateChannelMaskCntl(redundancy->chMaskCntl) != OK)
-                    channelAck = false;
-            }
+            block++;        // count the number of LinkADRReq commands in the block
+            redundancy = (Redundancy_t*) (ptr+LINKADR_REDUNDANCY_OFFSET);
+            if( ValidateChannelMaskCntl(redundancy->chMaskCntl) != OK)
+                channelAck = false;
             ptr = ptr + LINKADR_CMD_LEN;
         }
 
@@ -620,7 +629,7 @@ uint8_t* ExecuteLinkAdr (uint8_t *ptr, uint8_t *commandsLen)
 
                 if (powerAck && drAck && channelAck)
                 {
-                    // at this point all of the linked ADR request have been verifed
+                    // at this point all of the linked ADR request have been verified
                     // go back through the list and enable the channels, in order
                     uint8_t* replayPtr = ptr - (LINKADR_CMD_LEN * block);
                     while( replayPtr < ptr)
@@ -635,9 +644,12 @@ uint8_t* ExecuteLinkAdr (uint8_t *ptr, uint8_t *commandsLen)
                         EnableChannels (channelMask, redundancy->chMaskCntl);
              
                     }
+                    
+                    loRa.macStatus.channelsModified = ENABLED;
 
                     UpdateTxPower (txPowerNew);
                     loRa.macStatus.txPowerModified = ENABLED; // the current tx power was modified, so the user is informed about the change via this flag
+                    
                     UpdateCurrentDataRate (dataRate);
                 }
 
@@ -650,7 +662,7 @@ uint8_t* ExecuteLinkAdr (uint8_t *ptr, uint8_t *commandsLen)
                 {
                     loRa.maxRepetitionsUnconfirmedUplink = redundancy->nbRep - 1;
                 }
-                loRa.macStatus.nbRepModified = 1;
+                loRa.macStatus.nbRepModified = ENABLED;
             }
             else
             {
@@ -770,7 +782,7 @@ uint8_t* ExecuteRxParamSetupReq (uint8_t *ptr)
     {
         loRa.offset = dlSettings.bits.rx1DROffset;
         UpdateReceiveWindow2Parameters (frequency, dlSettings.bits.rx2DataRate);
-        loRa.macStatus.secondReceiveWindowModified = 1;
+        loRa.macStatus.secondReceiveWindowModified = ENABLED;
     }
     rxParamSetupReqAnsFlag = true;
     

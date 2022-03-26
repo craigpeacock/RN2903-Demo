@@ -44,6 +44,12 @@
 #include "radio_driver_hal.h"
 #include "lorawan_radio.h"
 #include "sw_timer.h"
+#if defined(DEBUGRX2)
+// debug bct
+#include "../../parser/parser.h"
+#include "../../parser/parser_tsp.h"
+#include "../../parser/parser_utils.h"
+#endif // DEBUGRX2
 
 #define TIME_ON_AIR_LOAD_VALUE              ((uint32_t)20000)
 #define WATCHDOG_DEFAULT_TIME               ((uint32_t)15000)
@@ -926,6 +932,14 @@ RadioError_t RADIO_Transmit(uint8_t *buffer, uint8_t bufferLen)
 // rxWindowSize parameter is in symbols for LoRa and ms for FSK
 RadioError_t RADIO_ReceiveStart(uint16_t rxWindowSize)
 {
+#if defined(DEBUGRX2)
+   // debug bct
+    {
+    uint8_t debug_buf[20];
+    strcpy(debug_buf, "### Rx: start");
+    Parser_TxAddReply(debug_buf, strlen(debug_buf));
+    }
+#endif // DEBUGRX2
     if ((RadioConfiguration.flags & RADIO_FLAG_RXDATA) != 0)
     {
         return ERR_BUFFER_LOCKED;
@@ -1010,6 +1024,14 @@ RadioError_t RADIO_ReceiveStart(uint16_t rxWindowSize)
 
 void RADIO_ReceiveStop(void)
 {
+#if defined(DEBUGRX2)
+   // debug bct
+    {
+    uint8_t debug_buf[20];
+    strcpy(debug_buf, "### Rx: stop");
+    Parser_TxAddReply(debug_buf, strlen(debug_buf));
+    }
+#endif // DEBUGRX2
     if (RADIO_FLAG_RECEIVING == RadioConfiguration.flags)
     {
         RADIO_WriteMode(MODE_SLEEP, RadioConfiguration.modulation, 0);
@@ -1026,6 +1048,14 @@ static void RADIO_RxDone(void)
     uint8_t i, irqFlags;
     uint8_t rssi;
     
+#if defined(DEBUGRX2)
+   // debug bct
+    {
+    uint8_t debug_buf[20];
+    strcpy(debug_buf, "### Rx: done");
+    Parser_TxAddReply(debug_buf, strlen(debug_buf));
+    }
+#endif // DEBUGRX2
     irqFlags = RADIO_RegisterRead(REG_LORA_IRQFLAGS);
     // Clear RxDone interrupt (also CRC error and ValidHeader interrupts, if
     // they exist)
@@ -1142,6 +1172,14 @@ static void RADIO_FSKPayloadReady(void)
 
 static void RADIO_RxTimeout(void)
 {
+#if defined(DEBUGRX2)
+   // debug bct
+    {
+    uint8_t debug_buf[20];
+    strcpy(debug_buf, "### Rx: time");
+    Parser_TxAddReply(debug_buf, strlen(debug_buf));
+    }
+#endif // DEBUGRX2
     // Make sure the watchdog won't trigger MAC functions erroneously.
     SwTimerStop(RadioConfiguration.watchdogTimerId);
 
@@ -1203,6 +1241,27 @@ static void RADIO_FSKPacketSent(void)
 
 uint8_t RADIO_GetStatus(void)
 {
+#if !defined(DISABLE_BUSY_WORKAROUND)
+    /* TODO: FIXME:
+     * This if statement in its entirety was added as a hack to prevent an
+     * early call to LORAWAN_ReceiveWindow2Callback from locking the
+     * loRa.macStatus.macState in a non IDLE state.  The root issue is that
+     * the LORAWAN_ReceiveWindow2Callback is sometimes called about 1 second
+     * earlier than it should. This workaround, while logically valid, masks
+     * issue early call issue.
+     * REG_FSK_RES18 is also Semtech RegModemStat
+     *      BIT0 = Signal Detected (preamble started)
+     *      BIT1 = Signal Synchronized (preamble detected modem in lock)
+     *      BIT3 = Header Info Valid (Header CRC is correct) */
+    if (RADIO_RegisterRead(REG_FSK_RES18) & (BIT0 | BIT1 | BIT3))
+    {
+        RadioConfiguration.flags |= RADIO_FLAG_RECEIVING;
+    }
+    else
+    {
+        RadioConfiguration.flags &= ~RADIO_FLAG_RECEIVING;
+    }
+#endif // BUSY_WORKAROUND
     return RadioConfiguration.flags;
 }
 
@@ -1252,7 +1311,7 @@ static void RADIO_FHSSChangeChannel(void)
     {
         if (NULL != RadioConfiguration.fhssNextFrequency)
         {
-            RADIO_WriteFrequency(RadioConfiguration.fhssNextFrequency());
+//            RADIO_WriteFrequency(RadioConfiguration.fhssNextFrequency());
         }
     }
 
@@ -1507,6 +1566,14 @@ static void RADIO_RxFSKTimeout(uint8_t param)
 
 static void RADIO_WatchdogTimeout(uint8_t param)
 {
+#if defined(DEBUGRX2)
+   // debug bct
+    {
+    uint8_t debug_buf[20];
+    strcpy(debug_buf, "### Rx: wdt");
+    Parser_TxAddReply(debug_buf, strlen(debug_buf));
+    }
+#endif // DEBUGRX2
     RADIO_WriteMode(MODE_STANDBY, RadioConfiguration.modulation, 1);
     RADIO_WriteMode(MODE_SLEEP, RadioConfiguration.modulation, 0);
 

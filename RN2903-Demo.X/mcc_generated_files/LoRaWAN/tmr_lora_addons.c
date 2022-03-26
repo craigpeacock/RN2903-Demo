@@ -48,7 +48,7 @@
 
 volatile uint8_t timerOverflow = 0;
 volatile uint32_t ticksToScheduledInterrupt = 0xFFFFFFFFU;
-volatile uint16_t reloadVal = 0;
+volatile uint32_t reloadVal = 0;
 volatile uint32_t ticksAdded = 0;
 
 void TMR_ISR_Lora_Init(void)
@@ -64,7 +64,7 @@ void TMR_ISR_lora(void)
     
     if (ticksToScheduledInterrupt < HW_MAX_TIMER_VAL)
     {
-        reloadVal = HW_MAX_TIMER_VAL - ticksToScheduledInterrupt;
+        reloadVal   = HW_MAX_TIMER_VAL - (ticksToScheduledInterrupt & TMR_MASK);
         ticksAdded = TMR_SwapTimer(reloadVal);
     }
 }
