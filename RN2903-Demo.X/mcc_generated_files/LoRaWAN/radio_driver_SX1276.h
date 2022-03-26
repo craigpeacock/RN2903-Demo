@@ -127,6 +127,7 @@ typedef enum
     ERR_NONE = 0,
 } RadioError_t;
 
+#define WATCHDOG_DEFAULT_TIME               ((uint32_t)15000)
 
 #define RADIO_FLAG_TRANSMITTING         BIT0
 #define RADIO_FLAG_RECEIVING            BIT1
@@ -212,6 +213,8 @@ RadioDataRate_t RADIO_GetSpreadingFactor(void);
 
 uint16_t RADIO_ReadRandom(void);
 int8_t RADIO_GetPacketSnr(void);
+int8_t RADIO_GetPacketRSSI(void);
+
 
 void RADIO_RegisterWrite(uint8_t reg, uint8_t value);
 uint8_t RADIO_RegisterRead(uint8_t reg);

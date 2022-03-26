@@ -48,9 +48,17 @@ extern "C" {
 #define RESPONSE_OK                             1
 #define RESPONSE_NOT_OK                         0
 
+#define FLAG_ERROR                              0
+#define FLAG_OK                                 1
+
+#define MCAST_ENABLED                           1
+#define MCAST_DISABLED                          0    
+    
 #define RESERVED_FOR_FUTURE_USE                 0
 
 #define MAXIMUM_BUFFER_LENGTH                   271
+
+#define CLASS_C_RX_WINDOW_SIZE                  0
 
 //Data rate (DR) encoding 
 #define DR0                                     0  
@@ -120,6 +128,8 @@ typedef enum
     RX2_OPEN                    ,
     RETRANSMISSION_DELAY        ,         //used for ADR_ACK delay, FSK can occur
     ABP_DELAY                   ,         //used for delaying in calling the join callback for ABP
+    CLASS_C_RX2_1_OPEN          ,
+    CLASS_C_RX2_2_OPEN          ,
 } LoRaMacState_t;   
 
 // types of frames
@@ -184,6 +194,9 @@ typedef struct
     uint8_t applicationKey[16];   
     GenericEui_t applicationEui;
     GenericEui_t deviceEui;
+    DeviceAddress_t mcastDeviceAddress;
+    uint8_t mcastNetworkSessionKey[16];
+    uint8_t mcastApplicationSessionKey[16];
 } ActivationParameters_t;
 
 typedef union
@@ -243,6 +256,7 @@ typedef struct
     uint16_t joinAcceptDelay1  ;
     uint16_t joinAcceptDelay2  ;
     uint16_t maxFcntGap        ;
+    uint16_t maxMultiFcntGap   ;
     uint16_t ackTimeout        ;
     uint8_t adrAckLimit        ;
     uint8_t adrAckDelay        ;
@@ -272,6 +286,9 @@ typedef union
        unsigned applicationKey:1;
        unsigned networkSessionKey:1;
        unsigned applicationSessionKey:1;
+       unsigned mcastApplicationSessionKey:1;
+       unsigned mcastNetworkSessionKey:1;
+       unsigned mcastDeviceAddress:1;
     };
 } LorawanMacKeys_t;
 
@@ -299,6 +316,7 @@ RxAppData_t rxPayload;
 
 bool rxParamSetupReqAnsFlag;
 bool rxTimingSetupReqAnsFlag;
+bool dlChannelReqAnsFlag;
 uint8_t rxParamSetupAns;
 
 /*************************** FUNCTIONS PROTOTYPE ******************************/
@@ -357,7 +375,7 @@ LorawanError_t SearchAvailableChannel (uint8_t maxChannels, bool transmissionTyp
 
 uint8_t* ExecuteDutyCycle (uint8_t *ptr);
 
-uint8_t* ExecuteLinkAdr (uint8_t *ptr);
+uint8_t* ExecuteLinkAdr (uint8_t *ptr, uint8_t *commandsLen);
 
 uint8_t* ExecuteDevStatus (uint8_t *ptr);
 
@@ -369,6 +387,7 @@ void ConfigureRadio(uint8_t dataRate, uint32_t freq);
 
 uint32_t GetRx1Freq (void);
 
+void LORAWAN_EnterContinuousReceive(void);
 
 
 #ifdef	__cplusplus

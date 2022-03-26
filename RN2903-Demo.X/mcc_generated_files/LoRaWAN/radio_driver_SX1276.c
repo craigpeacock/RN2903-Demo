@@ -44,7 +44,6 @@
 #include "radio_driver_hal.h"
 #include "lorawan_radio.h"
 #include "sw_timer.h"
-#include <stdio.h>
 
 #define TIME_ON_AIR_LOAD_VALUE              ((uint32_t)20000)
 #define WATCHDOG_DEFAULT_TIME               ((uint32_t)15000)
@@ -94,6 +93,7 @@ typedef struct
     uint32_t (*fhssNextFrequency)(void);
     uint8_t regVersion;
     int8_t packetSNR;
+    int16_t packetRSSI;
     RadioFSKShaping_t fskDataShaping;
     RadioFSKBandWidth_t rxBw;
     RadioFSKBandWidth_t afcBw;
@@ -393,6 +393,9 @@ static void RADIO_WritePower(int8_t power)
         {
             power = 20;
         }
+        // In the RN2903 datasheet (DS50002390E) Table 2-5 shows an actual
+        // output power jumps from 17dBm to 18.5 dBm, skipping over 18.
+        // Therefore the value 18 is replaced with 17.
         else if (power > 17)
         {
             power = 17;
@@ -447,6 +450,7 @@ void RADIO_Init(uint8_t *radioBuffer, uint32_t frequency)
     RadioConfiguration.dataBuffer = radioBuffer;
     RadioConfiguration.frequencyHopPeriod = 0;
     RadioConfiguration.packetSNR = -128;
+    RadioConfiguration.packetRSSI = -128;
     RadioConfiguration.watchdogTimerTimeout = WATCHDOG_DEFAULT_TIME;
     RadioConfiguration.fskDataShaping = FSK_SHAPING_GAUSS_BT_0_5;
     RadioConfiguration.rxBw = FSKBW_50_0KHZ;
@@ -828,10 +832,6 @@ RadioError_t RADIO_Transmit(uint8_t *buffer, uint8_t bufferLen)
     uint8_t regValue;
     uint8_t i;
 
-#ifdef DEBUG
-    printf("RADIO_Transmit() DataRate SF%d, Freq %ld\r\n", RadioConfiguration.dataRate, RadioConfiguration.frequency);
-#endif
-    
     if ((RadioConfiguration.flags & RADIO_FLAG_RXDATA) != 0)
     {
         return ERR_BUFFER_LOCKED;
@@ -1024,6 +1024,8 @@ void RADIO_ReceiveStop(void)
 static void RADIO_RxDone(void)
 {
     uint8_t i, irqFlags;
+    uint8_t rssi;
+    
     irqFlags = RADIO_RegisterRead(REG_LORA_IRQFLAGS);
     // Clear RxDone interrupt (also CRC error and ValidHeader interrupts, if
     // they exist)
@@ -1061,6 +1063,12 @@ static void RADIO_RxDone(void)
 
             RadioConfiguration.packetSNR = RADIO_RegisterRead(REG_LORA_PKTSNRVALUE);
             RadioConfiguration.packetSNR /= (int8_t)4;
+            rssi = RADIO_RegisterRead(REG_LORA_PKTRSSIVALUE);
+            RadioConfiguration.packetRSSI = rssi - 157;
+            if (RadioConfiguration.packetSNR < 0)
+                RadioConfiguration.packetRSSI += RadioConfiguration.packetSNR;
+            else
+                RadioConfiguration.packetRSSI += rssi >> 4;
         }
         else
         {
@@ -1525,6 +1533,11 @@ static void RADIO_WatchdogTimeout(uint8_t param)
 int8_t RADIO_GetPacketSnr(void)
 {
     return RadioConfiguration.packetSNR;
+}
+
+int8_t RADIO_GetPacketRSSI(void)
+{
+    return RadioConfiguration.packetRSSI;
 }
 
 void RADIO_SetSpreadingFactor(RadioDataRate_t spreadingFactor)

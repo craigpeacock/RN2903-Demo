@@ -43,8 +43,6 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
-    
-//#define DEBUG
 
 #define SHIFT0                                  (0)
 #define SHIFT1                                  (1)
@@ -133,8 +131,6 @@ extern "C" {
 #define FREQ_870000KHZ                          870000000
 #define FREQ_902300KHZ                          902300000
 #define FREQ_903000KHZ                          903000000
-#define FREQ_915200KHZ                          915200000
-#define FREQ_915900KHZ                          915900000
 #define FREQ_923300KHZ                          923300000
 #define FREQ_927500KHZ                          927500000
 #define FREQ_1020000KHZ                         1020000000
@@ -156,10 +152,6 @@ extern "C" {
 #define NA915_UPSTREAM_CH0                      (FREQ_902300KHZ)
 #define NA915_UPSTREAM_CH64                     (FREQ_903000KHZ)
 #define NA915_DOWNSTREAM_CH0                    (FREQ_923300KHZ)
-
-#define SA915_UPSTREAM_CH0                      (FREQ_915200KHZ)
-#define SA915_UPSTREAM_CH64                     (FREQ_915900KHZ)
-#define SA915_DOWNSTREAM_CH0                    (FREQ_923300KHZ)
 
 #ifdef	__cplusplus
 }
