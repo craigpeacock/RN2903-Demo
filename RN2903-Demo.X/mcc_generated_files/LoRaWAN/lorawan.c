@@ -2154,7 +2154,11 @@ static void AssemblePacket (bool confirmed, uint8_t port, uint8_t *buffer, uint1
             IncludeMacRxTimingSetupResponse(macBuffer, &bufferIndex);
         }
      }
-   macBuffer[bufferIndex++] = port;     // the port field is present if the frame payload field is not empty
+   
+   if ( (loRa.crtMacCmdIndex != 0) || (bufferLength != 0) )
+   {
+        macBuffer[bufferIndex++] = port;     // the port field is present if the frame payload field is not empty
+   }
 
    if (bufferLength != 0)
    {
