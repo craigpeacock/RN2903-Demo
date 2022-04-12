@@ -391,19 +391,19 @@ void LORAWAN_TxDone(uint16_t timeOnAir)
     }
 }
 
-//This function is called by the radio when the first or the second receive window expired without receiving any message (either for join accept or for message)
+// This function is called by the radio when the first or the second receive window expired without receiving any message (either for join accept or for message)
 void LORAWAN_RxTimeout(void)
 {
-    if (loRa.macStatus.macPause == 0)
+    if (loRa.macStatus.macPause == DISABLED)
     {
-        //If the timeout is after the first receive window, we have to wait for the second receive window....
+        // If the timeout is after the first receive window, we have to wait for the second receive window....
         if ( loRa.macStatus.macState == RX1_OPEN )
         {
             loRa.macStatus.macState = BETWEEN_RX1_RX2;
         }
         else
         {
-        //If last message sent was a join request, the join was not accepted after the second window expired
+        // If last message sent was a join request, the join was not accepted after the second window expired
             if (loRa.lorawanMacStatus.joining == 1)
             {
                 SetJoinFailState();
@@ -411,7 +411,7 @@ void LORAWAN_RxTimeout(void)
             //If last message sent was a data message, and there was no reply...
             else if (loRa.macStatus.networkJoined == 1)
             {
-                Retransmissions ();
+                Retransmissions();
             }
             if (CLASS_C == loRa.deviceClass)
             {
@@ -1212,7 +1212,7 @@ static void Retransmissions(void)
 {
     if (loRa.lorawanMacStatus.ackRequiredFromNextDownlinkMessage == ENABLED) 
     {
-        // if last uplink packet was confirmed, we have to send this packet by the number indicated by NbRepConfFrames
+        // If last uplink packet was confirmed, we have to send this packet by the number indicated by NbRepConfFrames
         if (loRa.counterRepetitionsConfirmedUplink <= loRa.maxRepetitionsConfirmedUplink)
         {
             UpdateRetransmissionAckTimeoutState ();
@@ -1249,7 +1249,7 @@ static void Retransmissions(void)
             else
             {
                 // If no channels were found, then no more retransmissions will occur for this packet
-                ResetParametersForUnconfirmedTransmission ();
+                ResetParametersForUnconfirmedTransmission();
                 if (rxPayload.RxAppData != NULL)
                 {
                     // Inform the application layer that retransmissions have stopped
