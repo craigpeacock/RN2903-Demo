@@ -103,49 +103,49 @@ uint8_t rxParamSetupAns = 0;
 
 /************************ PRIVATE FUNCTION PROTOTYPES *************************/
 
-static void CreateAllSoftwareTimers (void);
+static void CreateAllSoftwareTimers(void);
 
-static void SetCallbackSoftwareTimers (void);
+static void SetCallbackSoftwareTimers(void);
 
-static void StopAllSoftwareTimers (void);
+static void StopAllSoftwareTimers(void);
 
-static void InitDefault915Channels (void);
+static void InitDefault915Channels(void);
 
-static void UpdateDataRange (uint8_t channelId, uint8_t dataRangeNew);
+static void UpdateDataRange(uint8_t channelId, uint8_t dataRangeNew);
 
-static void UpdateChannelIdStatus (uint8_t channelId, bool statusNew);
+static void UpdateChannelIdStatus(uint8_t channelId, bool statusNew);
 
-static void UpdateMChannelIdStatus (uint8_t channelId, bool statusNew);
+static void UpdateMChannelIdStatus(uint8_t channelId, bool statusNew);
 
-static LorawanError_t ValidateRxOffset (uint8_t rxOffset);
+static LorawanError_t ValidateRxOffset(uint8_t rxOffset);
 
-static LorawanError_t ValidateFrequency (uint32_t frequencyNew);
+static LorawanError_t ValidateFrequency(uint32_t frequencyNew);
 
-static LorawanError_t ValidateDataRange (uint8_t channelId, uint8_t dataRangeNew);
+static LorawanError_t ValidateDataRange(uint8_t channelId, uint8_t dataRangeNew);
 
-static LorawanError_t ValidateChannelId (uint8_t channelId);
+static LorawanError_t ValidateChannelId(uint8_t channelId);
 
-static LorawanError_t isDefaultChannel (uint8_t channelId);
+static LorawanError_t isDefaultChannel(uint8_t channelId);
 
-static LorawanError_t ValidateChannelMaskCntl (uint8_t channelMaskCntl);
+static LorawanError_t ValidateChannelMaskCntl(uint8_t channelMaskCntl);
 
-static void EnableChannels (uint16_t channelMask, uint8_t channelMaskCntl);
+static void EnableChannels(uint16_t channelMask, uint8_t channelMaskCntl);
 
-static void UpdateCurrentDataRateAfterDataRangeChanges (void);
+static void UpdateCurrentDataRateAfterDataRangeChanges(void);
 
-static uint32_t GenerateUSFrequency1 (uint8_t channelIndex);
+static uint32_t GenerateUSFrequency1(uint8_t channelIndex);
 
-static uint32_t GenerateUSFrequency2 (uint8_t channelIndex);
+static uint32_t GenerateUSFrequency2(uint8_t channelIndex);
 
-static uint32_t GenerateUSFrequencyReception (uint8_t channelIndex);
+static uint32_t GenerateUSFrequencyReception(uint8_t channelIndex);
 
-static void EnableChannels2 (uint8_t startIndex, uint8_t endIndex, uint16_t channelMask);
+static void EnableChannels2(uint8_t startIndex, uint8_t endIndex, uint16_t channelMask);
 
-static LorawanError_t ValidateDataRateReception (uint8_t dataRate);
+static LorawanError_t ValidateDataRateReception(uint8_t dataRate);
 
-static void Retransmissions (void);
+static void Retransmissions(void);
 
-static void TransmissionErrorCallback (uint8_t param);
+static void TransmissionErrorCallback(uint8_t param);
 
 /****************************** FUNCTIONS *************************************/
 

@@ -39,14 +39,6 @@
 
 #include "lorawan_na.h"
 
-#if defined(DEBUGMACMSG)
-// debug bct
-#include "../../parser/parser.h"
-#include "../../parser/parser_tsp.h"
-#include "../../parser/parser_utils.h"
-#include "../tmr1.h"
-#include "radio_registers_SX1276.h"
-#endif // DEBUGMACMSG
 /****************************** VARIABLES *************************************/
 
 //CID = LinkCheckReq     = 2
@@ -133,7 +125,8 @@ LorawanError_t LORAWAN_Join(ActivationType_t activationTypeNew)
 
     if (loRa.macStatus.macPause == ENABLED)
     {
-        return MAC_PAUSED;                               // Any further transmissions or receptions cannot occur is macPaused is enabled.
+        // Any further transmissions or receptions cannot occur if macPaused is enabled.
+        return MAC_PAUSED;                               
     }
 
     if (loRa.macStatus.silentImmediately == ENABLED)
@@ -202,32 +195,37 @@ LorawanError_t LORAWAN_Join(ActivationType_t activationTypeNew)
     }
 }
 
-LorawanError_t LORAWAN_Send (TransmissionType_t confirmed, uint8_t port,  void *buffer, uint8_t bufferLength)
+LorawanError_t LORAWAN_Send(TransmissionType_t confirmed, uint8_t port,  void *buffer, uint8_t bufferLength)
  {
     LorawanError_t result;
     loRa.macAnswerPending = false;
 
     if (loRa.macStatus.macPause == ENABLED)
     {
-        return MAC_PAUSED;                               // Any further transmissions or receptions cannot occur is macPaused is enabled.
+        // Any further transmissions or receptions cannot occur if macPaused is enabled.
+        return MAC_PAUSED;                               
     }
 
-    if (loRa.macStatus.silentImmediately == ENABLED)  // The server decided that any further uplink transmission is not possible from this end device.
+    if (loRa.macStatus.silentImmediately == ENABLED)  
     {
+        // The server decided that any further uplink transmission is not possible from this end device.
         return SILENT_IMMEDIATELY_ACTIVE;
     }
 
-    if (loRa.macStatus.networkJoined == DISABLED)          //The network needs to be joined before sending
+    if (loRa.macStatus.networkJoined == DISABLED)          
     {
+        // The network needs to be joined before sending
         return NETWORK_NOT_JOINED;
     }
 
-    if ( (port < FPORT_MIN) && (bufferLength != 0) )   //Port number should be <= 1 if there is data to send. If port number is 0, it indicates only Mac commands are inside FRM Payload
+    if ( (port < FPORT_MIN) && (bufferLength != 0) )   
     {
+        // Port number should be <= 1 if there is data to send. 
+        // If port number is 0, it indicates only Mac commands are inside FRM Payload
         return INVALID_PARAMETER;
     }
 
-    //validate date length using MaxPayloadSize
+    // Validate date length using MaxPayloadSize
     if (bufferLength > LORAWAN_GetMaxPayloadSize ())
     {
         return INVALID_BUFFER_LENGTH;
@@ -245,7 +243,7 @@ LorawanError_t LORAWAN_Send (TransmissionType_t confirmed, uint8_t port,  void *
         return MAC_STATE_NOT_READY_FOR_TRANSMISSION;      
     }
 
-    result = SelectChannelForTransmission (1);
+    result = SelectChannelForTransmission(1);
     if (result != OK)
     {
         return result;
@@ -257,9 +255,9 @@ LorawanError_t LORAWAN_Send (TransmissionType_t confirmed, uint8_t port,  void *
            RADIO_ReceiveStop();
        }
 
-       AssemblePacket (confirmed, port, buffer, bufferLength);
+       AssemblePacket(confirmed, port, buffer, bufferLength);
 
-       if (RADIO_Transmit (&macBuffer[16], loRa.lastPacketLength) == OK)
+       if (RADIO_Transmit(&macBuffer[16], loRa.lastPacketLength) == OK)
        {
            loRa.fCntUp.value ++;   // the uplink frame counter increments for every new transmission (it does not increment for a retransmission)
 
@@ -284,7 +282,8 @@ LorawanError_t LORAWAN_SetMcast(bool status)
 {
     if (CLASS_A == loRa.deviceClass)
     {
-        return INVALID_CLASS; // it works only for Class B and Class C
+        // It works only for Class B and Class C
+        return INVALID_CLASS; 
     }
 
     // Only ABP shall be checked
@@ -315,30 +314,30 @@ bool LORAWAN_GetMcast(void)
     return loRa.macStatus.mcastEnable;
 }
 
-void LORAWAN_SetMcastDeviceAddress (uint32_t mcastDeviceAddressNew)
+void LORAWAN_SetMcastDeviceAddress(uint32_t mcastDeviceAddressNew)
 {
    loRa.activationParameters.mcastDeviceAddress.value = mcastDeviceAddressNew;
    loRa.macKeys.mcastDeviceAddress = 1;
 }
 
-uint32_t LORAWAN_GetMcastDeviceAddress (void)
+uint32_t LORAWAN_GetMcastDeviceAddress(void)
 {
     return loRa.activationParameters.mcastDeviceAddress.value;
 }
 
-void LORAWAN_SetMcastNetworkSessionKey (uint8_t *mcastNetworkSessionKeyNew)
+void LORAWAN_SetMcastNetworkSessionKey(uint8_t *mcastNetworkSessionKeyNew)
 {
     memcpy(loRa.activationParameters.mcastNetworkSessionKey, mcastNetworkSessionKeyNew, 16);
     loRa.macKeys.mcastNetworkSessionKey = 1;
 }
 
-void LORAWAN_SetMcastApplicationSessionKey (uint8_t *mcastApplicationSessionKeyNew)
+void LORAWAN_SetMcastApplicationSessionKey(uint8_t *mcastApplicationSessionKeyNew)
 {
     memcpy( loRa.activationParameters.mcastApplicationSessionKey, mcastApplicationSessionKeyNew, 16);
     loRa.macKeys.mcastApplicationSessionKey = 1;
 }
 
-void LORAWAN_GetMcastApplicationSessionKey (uint8_t *mcastApplicationSessionKey)
+void LORAWAN_GetMcastApplicationSessionKey(uint8_t *mcastApplicationSessionKey)
 {
     if (mcastApplicationSessionKey != NULL)
     {
@@ -346,7 +345,7 @@ void LORAWAN_GetMcastApplicationSessionKey (uint8_t *mcastApplicationSessionKey)
     }
 }
 
-void LORAWAN_GetMcastNetworkSessionKey (uint8_t *mcastNetworkSessionKey)
+void LORAWAN_GetMcastNetworkSessionKey(uint8_t *mcastNetworkSessionKey)
 {
     if (mcastNetworkSessionKey != NULL)
     {
@@ -354,8 +353,7 @@ void LORAWAN_GetMcastNetworkSessionKey (uint8_t *mcastNetworkSessionKey)
     }
 }
 
-
-void LORAWAN_SetDeviceEui (uint8_t *deviceEuiNew)
+void LORAWAN_SetDeviceEui(uint8_t *deviceEuiNew)
 {
    if (deviceEuiNew != NULL)
    {
@@ -365,12 +363,12 @@ void LORAWAN_SetDeviceEui (uint8_t *deviceEuiNew)
    }
 }
 
-void LORAWAN_GetDeviceEui (uint8_t *deviceEui)
+void LORAWAN_GetDeviceEui(uint8_t *deviceEui)
 {
    memcpy(deviceEui, loRa.activationParameters.deviceEui.buffer, sizeof(loRa.activationParameters.deviceEui) );
 }
 
-void LORAWAN_SetApplicationEui (uint8_t *applicationEuiNew)
+void LORAWAN_SetApplicationEui(uint8_t *applicationEuiNew)
 {
    if (applicationEuiNew != NULL)
    {
@@ -380,24 +378,24 @@ void LORAWAN_SetApplicationEui (uint8_t *applicationEuiNew)
    }
 }
 
-void LORAWAN_GetApplicationEui (uint8_t *applicationEui)
+void LORAWAN_GetApplicationEui(uint8_t *applicationEui)
 {
    memcpy (applicationEui, loRa.activationParameters.applicationEui.buffer, sizeof(loRa.activationParameters.applicationEui) );
 }
 
-void LORAWAN_SetDeviceAddress (uint32_t deviceAddressNew)
+void LORAWAN_SetDeviceAddress(uint32_t deviceAddressNew)
 {
    loRa.activationParameters.deviceAddress.value = deviceAddressNew;
    loRa.macKeys.deviceAddress = 1;
    loRa.macStatus.networkJoined = DISABLED; // this is a guard against overwriting any of the addresses after one join was already done. If any of the addresses change, rejoin is needed
 }
 
-uint32_t LORAWAN_GetDeviceAddress (void)
+uint32_t LORAWAN_GetDeviceAddress(void)
 {
    return loRa.activationParameters.deviceAddress.value;
 }
 
-void LORAWAN_SetNetworkSessionKey (uint8_t *networkSessionKeyNew)
+void LORAWAN_SetNetworkSessionKey(uint8_t *networkSessionKeyNew)
 {
    if (networkSessionKeyNew != NULL)
    {
@@ -407,12 +405,12 @@ void LORAWAN_SetNetworkSessionKey (uint8_t *networkSessionKeyNew)
    }
 }
 
-void LORAWAN_GetNetworkSessionKey (uint8_t *networkSessionKey)
+void LORAWAN_GetNetworkSessionKey(uint8_t *networkSessionKey)
 {
     memcpy (networkSessionKey, loRa.activationParameters.networkSessionKey, sizeof(loRa.activationParameters.networkSessionKey) );
 }
 
-void LORAWAN_SetApplicationSessionKey (uint8_t *applicationSessionKeyNew)
+void LORAWAN_SetApplicationSessionKey(uint8_t *applicationSessionKeyNew)
 {
     if (applicationSessionKeyNew != NULL)
     {
@@ -422,12 +420,12 @@ void LORAWAN_SetApplicationSessionKey (uint8_t *applicationSessionKeyNew)
     }
 }
 
-void LORAWAN_GetApplicationSessionKey (uint8_t *applicationSessionKey)
+void LORAWAN_GetApplicationSessionKey(uint8_t *applicationSessionKey)
 {
     memcpy (applicationSessionKey, loRa.activationParameters.applicationSessionKey, sizeof(loRa.activationParameters.applicationSessionKey) );
 }
 
-void LORAWAN_SetApplicationKey (uint8_t *applicationKeyNew)
+void LORAWAN_SetApplicationKey(uint8_t *applicationKeyNew)
 {
     if (applicationKeyNew != NULL)
     {
@@ -437,26 +435,26 @@ void LORAWAN_SetApplicationKey (uint8_t *applicationKeyNew)
     }
 }
 
-void LORAWAN_GetApplicationKey (uint8_t *applicationKey)
+void LORAWAN_GetApplicationKey(uint8_t *applicationKey)
 {
     memcpy (applicationKey, loRa.activationParameters.applicationKey, sizeof(loRa.activationParameters.applicationKey) );
 }
 
-void LORAWAN_SetAdr (bool status)
+void LORAWAN_SetAdr(bool status)
 {
     loRa.macStatus.adr = status;
     loRa.adrAckCnt = DISABLED;
-    loRa.lorawanMacStatus.adrAckRequest = DISABLED; // this flag should only be on when ADR is set and the adr ack counter is bigger than adr ack limit
+    loRa.lorawanMacStatus.adrAckRequest = DISABLED; // This flag should only be on when ADR is set and the ADR ACK counter is bigger than the ADR ACK limit
 }
 
-bool LORAWAN_GetAdr (void)
+bool LORAWAN_GetAdr(void)
 {
     return loRa.macStatus.adr;
 }
 
-LorawanError_t LORAWAN_SetCurrentDataRate (uint8_t valueNew)
+LorawanError_t LORAWAN_SetCurrentDataRate(uint8_t valueNew)
 {
-    // the current data rate cannot be smaller than the minimum data rate defined for all the channels or bigger than the maximum data rate defined for all the channels
+    // The current data rate cannot be smaller than the minimum data rate defined for all the channels or bigger than the maximum data rate defined for all the channels
 
     if ( (valueNew < loRa.minDataRate) || (valueNew > loRa.maxDataRate) || (ValidateDataRate(valueNew) != OK) )
     {
@@ -469,18 +467,18 @@ LorawanError_t LORAWAN_SetCurrentDataRate (uint8_t valueNew)
     }
 }
 
-uint8_t LORAWAN_GetCurrentDataRate (void)
+uint8_t LORAWAN_GetCurrentDataRate(void)
 {
     return loRa.currentDataRate;
 }
 
-LorawanError_t LORAWAN_SetTxPower (uint8_t txPowerNew)
+LorawanError_t LORAWAN_SetTxPower(uint8_t txPowerNew)
 {
    LorawanError_t result = OK;
 
-    if (ValidateTxPower (txPowerNew) == OK)
+    if (ValidateTxPower(txPowerNew) == OK)
     {
-        UpdateTxPower (txPowerNew);
+        UpdateTxPower(txPowerNew);
     }
     else
     {
@@ -489,104 +487,104 @@ LorawanError_t LORAWAN_SetTxPower (uint8_t txPowerNew)
     return result;
 }
 
-uint8_t LORAWAN_GetTxPower (void)
+uint8_t LORAWAN_GetTxPower(void)
 {
     return loRa.txPower;
 }
 
-uint8_t LORAWAN_GetSyncWord (void)
+uint8_t LORAWAN_GetSyncWord(void)
 {
     return loRa.syncWord;
 }
 
-void LORAWAN_SetSyncWord (uint8_t syncWord)
+void LORAWAN_SetSyncWord(uint8_t syncWord)
 {
     loRa.syncWord = syncWord;
 }
 
-void LORAWAN_SetUplinkCounter (uint32_t ctr)
+void LORAWAN_SetUplinkCounter(uint32_t ctr)
 {
     loRa.fCntUp.value = ctr;
 }
 
-uint32_t LORAWAN_GetUplinkCounter (void)
+uint32_t LORAWAN_GetUplinkCounter(void)
 {
     return loRa.fCntUp.value;
 }
 
-void LORAWAN_SetDownlinkCounter (uint32_t ctr)
+void LORAWAN_SetDownlinkCounter(uint32_t ctr)
 {
     loRa.fCntDown.value = ctr;
 }
 
-uint32_t LORAWAN_GetDownlinkCounter (void)
+uint32_t LORAWAN_GetDownlinkCounter(void)
 {
     return loRa.fCntDown.value;
 }
 
 // Set and get functions for protocol parameters
-void LORAWAN_SetReceiveDelay1 (uint16_t receiveDelay1New)
+void LORAWAN_SetReceiveDelay1(uint16_t receiveDelay1New)
 {
     loRa.protocolParameters.receiveDelay1 = receiveDelay1New;
     loRa.protocolParameters.receiveDelay2 = loRa.protocolParameters.receiveDelay1 + 1000;  // 1 second after receive delay 1
 }
 
-void LORAWAN_SetReceiveOffset (uint8_t offset)
+void LORAWAN_SetReceiveOffset(uint8_t offset)
 {
     loRa.offset = offset;
 }
 
-uint8_t LORAWAN_GetReceiveOffset (void)
+uint8_t LORAWAN_GetReceiveOffset(void)
 {
     return loRa.offset;
 }
 
-uint16_t LORAWAN_GetReceiveDelay1 (void)
+uint16_t LORAWAN_GetReceiveDelay1(void)
 {
     return loRa.protocolParameters.receiveDelay1;
 }
 
-uint16_t LORAWAN_GetReceiveDelay2 (void)
+uint16_t LORAWAN_GetReceiveDelay2(void)
 {
     return loRa.protocolParameters.receiveDelay2;
 }
 
-void LORAWAN_SetJoinAcceptDelay1 (uint16_t joinAcceptDelay1New)
+void LORAWAN_SetJoinAcceptDelay1(uint16_t joinAcceptDelay1New)
 {
     loRa.protocolParameters.joinAcceptDelay1 = joinAcceptDelay1New;
 }
 
-uint16_t LORAWAN_GetJoinAcceptDelay1 (void)
+uint16_t LORAWAN_GetJoinAcceptDelay1(void)
 {
     return loRa.protocolParameters.joinAcceptDelay1;
 }
 
-void LORAWAN_SetJoinAcceptDelay2 (uint16_t joinAcceptDelay2New)
+void LORAWAN_SetJoinAcceptDelay2(uint16_t joinAcceptDelay2New)
 {
     loRa.protocolParameters.joinAcceptDelay2 = joinAcceptDelay2New;
 }
 
-uint16_t LORAWAN_GetJoinAcceptDelay2 (void)
+uint16_t LORAWAN_GetJoinAcceptDelay2(void)
 {
     return loRa.protocolParameters.joinAcceptDelay2;
 }
 
-void LORAWAN_SetMaxFcntGap (uint16_t maxFcntGapNew)
+void LORAWAN_SetMaxFcntGap(uint16_t maxFcntGapNew)
 {
     loRa.protocolParameters.maxFcntGap = maxFcntGapNew;
 }
 
-uint16_t LORAWAN_GetMaxFcntGap (void)
+uint16_t LORAWAN_GetMaxFcntGap(void)
 {
     return loRa.protocolParameters.maxFcntGap;
 }
 
-void LORAWAN_SetAdrAckLimit (uint8_t adrAckLimitNew)
+void LORAWAN_SetAdrAckLimit(uint8_t adrAckLimitNew)
 {
     loRa.protocolParameters.adrAckLimit = adrAckLimitNew;
 }
 
-uint8_t LORAWAN_GetAdrAckLimit (void)
+uint8_t LORAWAN_GetAdrAckLimit(void)
 {
     return loRa.protocolParameters.adrAckLimit;
 }
@@ -596,7 +594,7 @@ void LORAWAN_SetAdrAckDelay(uint8_t adrAckDelayNew)
     loRa.protocolParameters.adrAckDelay = adrAckDelayNew;
 }
 
-uint8_t LORAWAN_GetAdrAckDelay (void)
+uint8_t LORAWAN_GetAdrAckDelay(void)
 {
     return loRa.protocolParameters.adrAckDelay;
 }
@@ -606,12 +604,12 @@ void LORAWAN_SetAckTimeout(uint16_t ackTimeoutNew)
     loRa.protocolParameters.ackTimeout = ackTimeoutNew;
 }
 
-uint16_t LORAWAN_GetAckTimeout (void)
+uint16_t LORAWAN_GetAckTimeout(void)
 {
     return loRa.protocolParameters.ackTimeout;
 }
 
-void LORAWAN_SetClass (LoRaClass_t deviceClass)
+void LORAWAN_SetClass(LoRaClass_t deviceClass)
 {
     loRa.deviceClass = deviceClass;
 
@@ -627,7 +625,7 @@ void LORAWAN_SetClass (LoRaClass_t deviceClass)
     }
 }
 
-LoRaClass_t LORAWAN_GetClass (void)
+LoRaClass_t LORAWAN_GetClass(void)
 {
     return loRa.deviceClass;
 }
@@ -642,54 +640,54 @@ uint32_t LORAWAN_GetMcastDownCounter()
     return loRa.fMcastCntDown.value;
 }
 
-void LORAWAN_SetNumberOfRetransmissions (uint8_t numberRetransmissions)
+void LORAWAN_SetNumberOfRetransmissions(uint8_t numberRetransmissions)
 {
     loRa.maxRepetitionsConfirmedUplink = numberRetransmissions;
 }
 
-// for confirmed frames, default value is 8. The number of retransmissions includes also the first transmission
+// For confirmed frames, default value is 8. The number of retransmissions includes also the first transmission
 uint8_t LORAWAN_GetNumberOfRetransmissions (void)
 {
     return loRa.maxRepetitionsConfirmedUplink;
 }
 
-void LORAWAN_GetReceiveWindow2Parameters (uint32_t* frequency, uint8_t* dataRate)
+void LORAWAN_GetReceiveWindow2Parameters(uint32_t* frequency, uint8_t* dataRate)
 {
     *dataRate = loRa.receiveWindow2Parameters.dataRate;
     *frequency = loRa.receiveWindow2Parameters.frequency;   
 }
 
-// battery Level: 0 - external power source,  1-254 level, 255: the end device was not able to measure the battery level
-// default value for battery is 255 - the end device was not able to measure the battery level
-void LORAWAN_SetBattery (uint8_t batteryLevelNew)
+// Battery Level: 0 = external power source,  1-254 level, 255 = the end device was not able to measure the battery level
+// Default value for battery is 255 = the end device was not able to measure the battery level
+void LORAWAN_SetBattery(uint8_t batteryLevelNew)
 {
     loRa.batteryLevel = batteryLevelNew;
 }
 
-// the LORAWAN_GetPrescaler function returns the prescaler value that is sent by the server to the end device via the Mac Command
+// The LORAWAN_GetPrescaler function returns the prescaler value that is sent by the server to the end device via the MAC Command
 // not user configurable
-uint16_t LORAWAN_GetPrescaler (void)
+uint16_t LORAWAN_GetPrescaler(void)
 {
     return loRa.prescaler;
 }
  
-// if status is enabled, responses to ACK and MAC commands will be sent immediately
-void LORAWAN_SetAutomaticReply (bool status)
+// If status is enabled, responses to ACK and MAC commands will be sent immediately
+void LORAWAN_SetAutomaticReply(bool status)
 {
     loRa.macStatus.automaticReply = status;
 }
 
-bool LORAWAN_GetAutomaticReply (void)
+bool LORAWAN_GetAutomaticReply(void)
 {
     return loRa.macStatus.automaticReply;
 }
 
-// not user configurable
-uint32_t LORAWAN_GetStatus (void)
+// Not user configurable
+uint32_t LORAWAN_GetStatus(void)
 {
     uint32_t status = loRa.macStatus.value;
 
-    // these flags are cleared once the status has been read with 'mac get status'
+    // These flags are cleared once the status has been read with 'mac get status'
     loRa.macStatus.channelsModified             = DISABLED;
     loRa.macStatus.txPowerModified              = DISABLED;
     loRa.macStatus.nbRepModified                = DISABLED; 
@@ -700,19 +698,19 @@ uint32_t LORAWAN_GetStatus (void)
     return status;
 }
 
-// not user configurable
-uint8_t LORAWAN_GetLinkCheckMargin (void)
+// Not user configurable
+uint8_t LORAWAN_GetLinkCheckMargin(void)
 {
     return loRa.linkCheckMargin;
 }
 
-// not user configurable
-uint8_t LORAWAN_GetLinkCheckGwCnt (void)
+// Not user configurable
+uint8_t LORAWAN_GetLinkCheckGwCnt(void)
 {
     return loRa.linkCheckGwCnt;
 }
 
-void    LORAWAN_SetABDTimeout(uint32_t abdTimeout)
+void LORAWAN_SetABDTimeout(uint32_t abdTimeout)
 {
     loRa.abdTimeout = abdTimeout;
 }
@@ -722,22 +720,20 @@ uint32_t LORAWAN_GetABDTimeout(void)
     return loRa.abdTimeout;
 }
 
-/* This function is called when there is a need to send data outside the MAC layer
- It can be called when MAC is in idle, before RX1, between RX1 and RX2 or retransmission delay state
- It will return how much time other transmissions can occur*/
-uint32_t LORAWAN_Pause (void)
+// This function is called when there is a need to send data outside the MAC layer
+// It can be called when MAC is in idle, before RX1, between RX1 and RX2 or retransmission delay state
+// It will return how much time other transmissions can occur
+uint32_t LORAWAN_Pause(void)
 {
     uint32_t timeToPause;
 
     switch (loRa.macStatus.macState)
     {
         case IDLE:
-        {
             timeToPause = UINT32_MAX;
-        } break;
+            break;
 
         case BEFORE_RX1:
-        {
             if (loRa.lorawanMacStatus.joining == ENABLED)
             {
                 timeToPause = TICKS_TO_MS(SwTimerReadValue (loRa.joinAccept1TimerId));
@@ -746,10 +742,9 @@ uint32_t LORAWAN_Pause (void)
             {
                 timeToPause = TICKS_TO_MS(SwTimerReadValue (loRa.receiveWindow1TimerId));
             }
-        } break;
+             break;
 
         case BETWEEN_RX1_RX2:
-        {
             if (loRa.lorawanMacStatus.joining == ENABLED)
             {
                 timeToPause = SwTimerReadValue (loRa.joinAccept2TimerId);
@@ -759,18 +754,16 @@ uint32_t LORAWAN_Pause (void)
                 timeToPause = SwTimerReadValue (loRa.receiveWindow2TimerId);
             }
             timeToPause = TICKS_TO_MS(timeToPause);
-        } break;
+            break;
 
         case RETRANSMISSION_DELAY:
-        {
             timeToPause = SwTimerReadValue (loRa.ackTimeoutTimerId);
             timeToPause = TICKS_TO_MS(timeToPause);
-        } break;
+            break;
 
         default:
-        {
             timeToPause = 0;
-        } break;
+            break;
     }
 
     if (timeToPause >= 200)
@@ -787,14 +780,15 @@ uint32_t LORAWAN_Pause (void)
     return timeToPause;
 }
 
-void LORAWAN_Resume (void)  
+void LORAWAN_Resume(void)  
 {
     loRa.macStatus.macPause = DISABLED;
 }
 
-// period will be in seconds
-void LORAWAN_LinkCheckConfigure (uint16_t period)
+
+void LORAWAN_LinkCheckConfigure(uint16_t period)
 {
+    // Period will be in seconds
     uint8_t iCtr;
 
     loRa.periodForLinkCheck = period * 1000UL;
@@ -807,8 +801,8 @@ void LORAWAN_LinkCheckConfigure (uint16_t period)
         {
             if(loRa.macCommands[iCtr].receivedCid == LINK_CHECK_CID)
             {
-                //disable the link check mechanism 
-                //Mark this CID as invalid
+                // Disable the link check mechanism 
+                // Mark this CID as invalid
                 loRa.macCommands[iCtr].receivedCid = INVALID_VALUE;
                 loRa.crtMacCmdIndex --;
             }
@@ -818,7 +812,7 @@ void LORAWAN_LinkCheckConfigure (uint16_t period)
     {
         loRa.macStatus.linkCheck = ENABLED;
 
-        // if network is joined, the timer can start, otherwise after the network is joined the link check timer will start counting automatially
+        // If network is joined, the timer can start, otherwise after the network is joined the link check timer will start counting automatically
         if (loRa.macStatus.networkJoined == ENABLED)
         {
            SwTimerSetTimeout(loRa.linkCheckTimerId, MS_TO_TICKS(loRa.periodForLinkCheck));
@@ -828,22 +822,14 @@ void LORAWAN_LinkCheckConfigure (uint16_t period)
 
 }
 
-// if LORAWAN_ForceEnable is sent, the Silent Immediately bit sent by the end device is discarded and transmission is possible again
-void LORAWAN_ForceEnable (void)
+// If LORAWAN_ForceEnable is sent, the Silent Immediately bit sent by the end device is discarded and transmission is possible again
+void LORAWAN_ForceEnable(void)
 {
     loRa.macStatus.silentImmediately = DISABLED;
 }
 
-void LORAWAN_ReceiveWindow1Callback (uint8_t param)
+void LORAWAN_ReceiveWindow1Callback(uint8_t param)
 {
-#if defined(DEBUGRX1)
-   // debug bct
-    {
-    uint8_t debug_buf[20];
-    strcpy(debug_buf, "### Rx1Cb: start");
-    Parser_TxAddReply(debug_buf, strlen(debug_buf));
-    }
-#endif // DEBUGRX1
     uint32_t freq;
     
     if(loRa.macStatus.macPause == DISABLED)
@@ -876,70 +862,39 @@ void LORAWAN_ReceiveWindow1Callback (uint8_t param)
 
 reentrant void LORAWAN_ReceiveWindow2Callback(uint8_t param)
 {
-#if defined(DEBUGRX2)
-   // debug bct
-    {
-    uint8_t debug_buf[40];
-    strcpy(debug_buf, "### Rx2Cb: start t1=");
-//    uint32_t tmr1 = TMR_ReadTimer();
-//    Parser_IntArrayToHexAscii(sizeof(uint32_t), (uint8_t*)&tmr1, (debug_buf + strlen(debug_buf)));
-//    uint16_t tmr1 = TMR1;
-//    Parser_IntArrayToHexAscii(2, (uint8_t*)&tmr1, (debug_buf + strlen(debug_buf)));
-//    Parser_TxAddReply(debug_buf, strlen(debug_buf));
-    }
-#endif // DEBUGRX2
     // Make sure the radio is not currently receiving (because a long packet is being received on RX window 1
     if (loRa.macStatus.macPause == DISABLED)
     {
         if((RADIO_GetStatus() & RADIO_FLAG_RECEIVING) == 0)
         {
-#if defined(DEBUGRX2)
-   // debug bct
-    {
-    uint8_t debug_buf[20];
-    strcpy(debug_buf, "### Rx2Cb: rx no");
-    Parser_TxAddReply(debug_buf, strlen(debug_buf));
-    }
-#endif // DEBUGRX2
             loRa.macStatus.macState = RX2_OPEN;
             
             RADIO_ReceiveStop();
             RADIO_ReleaseData();
                     
             ConfigureRadioRx(loRa.receiveWindow2Parameters.dataRate, loRa.receiveWindow2Parameters.frequency);
-            
 
             if (RADIO_ReceiveStart(rxWindowSize[loRa.receiveWindow2Parameters.dataRate]) != OK)
             {
-                ResetParametersForConfirmedTransmission ();
-                ResetParametersForUnconfirmedTransmission ();
+                ResetParametersForConfirmedTransmission();
+                ResetParametersForUnconfirmedTransmission();
                 if (rxPayload.RxAppData != NULL)
                 {
-                    rxPayload.RxAppData (NULL, 0, MAC_NOT_OK);
+                    rxPayload.RxAppData(NULL, 0, MAC_NOT_OK);
                 }
             }            
         }
-
         else
         {
-#if defined(DEBUGRX2)
-   // debug bct
-    {
-    volatile uint8_t RegModemStat = RADIO_RegisterRead(REG_FSK_RES18);
-    uint8_t debug_buf[20];
-    strcpy(debug_buf, "### Rx2Cb: rx yes");
-    Parser_TxAddReply(debug_buf, strlen(debug_buf));
-    }
-#endif // DEBUGRX2
             // A packet is currently being received in RX1 Window
-            //This flag is used when the reception in RX1 is overlapping the opening of RX2
+            // This flag is used when the reception in RX1 is overlapping the opening of RX2
             loRa.rx2DelayExpired = 1;
         }
     }
     else
     {
-        //Transceiver standalone
-        //MAC transmission ended during radio standalone function
+        // Transceiver standalone
+        // MAC transmission ended during radio standalone function
         if (loRa.lorawanMacStatus.joining == 1)
         {
             loRa.lorawanMacStatus.joining = 0;
@@ -951,7 +906,7 @@ reentrant void LORAWAN_ReceiveWindow2Callback(uint8_t param)
     }
 }
 
-void LORAWAN_LinkCheckCallback (uint8_t param)
+void LORAWAN_LinkCheckCallback(uint8_t param)
 {
     uint8_t iCtr = 0;
     
@@ -977,7 +932,7 @@ void LORAWAN_LinkCheckCallback (uint8_t param)
         }              
     }
 
-    //Set link check timeout to the configured interval
+    // Set link check timeout to the configured interval
     if (loRa.macStatus.linkCheck == ENABLED)
     {
         SwTimerSetTimeout(loRa.linkCheckTimerId, MS_TO_TICKS(loRa.periodForLinkCheck));
@@ -1004,7 +959,7 @@ void LORAWAN_EnterContinuousReceive(void)
         }
     }
 }
-void AckRetransmissionCallback (uint8_t param)
+void AckRetransmissionCallback(uint8_t param)
 {
     uint8_t maximumPacketSize;
 
@@ -1014,74 +969,77 @@ void AckRetransmissionCallback (uint8_t param)
         {
             RADIO_ReceiveStop();
         }
-         if (loRa.counterRepetitionsConfirmedUplink <= loRa.maxRepetitionsConfirmedUplink)
-         {
-                maximumPacketSize = LORAWAN_GetMaxPayloadSize () + HDRS_MIC_PORT_MIN_SIZE;
+        
+        if (loRa.counterRepetitionsConfirmedUplink <= loRa.maxRepetitionsConfirmedUplink)
+        {
+            maximumPacketSize = LORAWAN_GetMaxPayloadSize () + HDRS_MIC_PORT_MIN_SIZE;
 
-                // after changing the dataRate, we must check if the size of the packet is still valid
-                if (loRa.lastPacketLength <= maximumPacketSize)
+            // After changing the dataRate, we must check if the size of the packet is still valid
+            if (loRa.lastPacketLength <= maximumPacketSize)
+            {
+                if (SelectChannelForTransmission (1) == OK)
                 {
-                    if (SelectChannelForTransmission (1) == OK)
+                    // Resend the last packet
+                    if (RADIO_Transmit (&macBuffer[16], loRa.lastPacketLength) == OK)
                     {
-                        //resend the last packet
-                        if (RADIO_Transmit (&macBuffer[16], loRa.lastPacketLength) == OK)
-                        {
-                            loRa.macStatus.macState = TRANSMISSION_OCCURRING;
-                            loRa.counterRepetitionsConfirmedUplink ++ ; //for each retransmission (if possible or not), the counter increments
+                        loRa.macStatus.macState = TRANSMISSION_OCCURRING;
+                        // For each retransmission (if possible or not), the counter increments
+                        loRa.counterRepetitionsConfirmedUplink++; 
 
-                            // change dataRate (smaller) and check payload size again with this new dataRate, dataRate should change from 2 to 2 transmissions (transmission 3, 5, 7...)
-                            if ( ( (loRa.counterRepetitionsConfirmedUplink % 2) == 0) && (loRa.currentDataRate != DR0) && (loRa.counterRepetitionsConfirmedUplink != (loRa.maxRepetitionsConfirmedUplink + 1) ) )
-                            {
-                                FindSmallestDataRate();
-                            }
-                        }
-                        else
+                        // Change dataRate (smaller) and check payload size again with this new dataRate, dataRate should change from 2 to 2 transmissions (transmission 3, 5, 7...)
+                        if ( ( (loRa.counterRepetitionsConfirmedUplink % 2) == 0) && (loRa.currentDataRate != DR0) && (loRa.counterRepetitionsConfirmedUplink != (loRa.maxRepetitionsConfirmedUplink + 1) ) )
                         {
-                            // if transmission was not possible, we must wait another ACK timeout seconds period of time to initiate a new transmission
-                            UpdateRetransmissionAckTimeoutState ();
+                                FindSmallestDataRate();
                         }
                     }
                     else
                     {
-                        // if transmission was not possible, we must wait another ACK timeout seconds period of time to initiate a new transmission
-                        UpdateRetransmissionAckTimeoutState ();
+                        // If transmission was not possible, we must wait another ACK timeout seconds period of time to initiate a new transmission
+                        UpdateRetransmissionAckTimeoutState();
                     }
                 }
                 else
                 {
-                    ResetParametersForConfirmedTransmission ();
-                    if (rxPayload.RxAppData != NULL)
-                    {
-                        rxPayload.RxAppData(NULL, 0, INVALID_BUFFER_LEN);
-                    }
+                    // If transmission was not possible, we must wait another ACK timeout seconds period of time to initiate a new transmission
+                    UpdateRetransmissionAckTimeoutState();
                 }
             }
-            else if ( (loRa.counterRepetitionsConfirmedUplink > loRa.maxRepetitionsConfirmedUplink) && (loRa.macStatus.macPause == DISABLED) )
+            else
             {
                 ResetParametersForConfirmedTransmission ();
                 if (rxPayload.RxAppData != NULL)
                 {
-                    rxPayload.RxAppData(NULL, 0, MAC_NOT_OK);
+                    rxPayload.RxAppData(NULL, 0, INVALID_BUFFER_LEN);
                 }
             }
+        }
+        else if ( (loRa.counterRepetitionsConfirmedUplink > loRa.maxRepetitionsConfirmedUplink) && (loRa.macStatus.macPause == DISABLED) )
+        {
+            ResetParametersForConfirmedTransmission();
+            if (rxPayload.RxAppData != NULL)
+            {
+                rxPayload.RxAppData(NULL, 0, MAC_NOT_OK);
+            }
+        }
     }
     else 
     {
-        ResetParametersForConfirmedTransmission ();
+        ResetParametersForConfirmedTransmission();
     }
 }
 
-void UnconfirmedTransmissionCallback (uint8_t param)
+void UnconfirmedTransmissionCallback(uint8_t param)
 {
-        //resend the last packet if the radio transmit function succeeds
-    if ( (SelectChannelForTransmission (1) == OK) && (RADIO_Transmit (&macBuffer[16], loRa.lastPacketLength) == OK) )
+    // Resend the last packet if the radio transmit function succeeds
+    if ( (SelectChannelForTransmission(1) == OK) && (RADIO_Transmit(&macBuffer[16], loRa.lastPacketLength) == OK) )
     {
-         loRa.counterRepetitionsUnconfirmedUplink ++ ; //for each retransmission, the counter increments
+        // For each retransmission, the counter increments
+        loRa.counterRepetitionsUnconfirmedUplink++; 
     }
     else
-    // if radio cannot transmit, then no more retransmissions will occur for this packet
     {
-        ResetParametersForUnconfirmedTransmission ();
+        // If radio cannot transmit, then no more retransmissions will occur for this packet
+        ResetParametersForUnconfirmedTransmission();
         if (rxPayload.RxAppData != NULL)
         {
             rxPayload.RxAppData(NULL, 0, MAC_NOT_OK);  // inform the application layer that no message was received back from the server
@@ -1089,24 +1047,24 @@ void UnconfirmedTransmissionCallback (uint8_t param)
     }
 }
 
-void AutomaticReplyCallback (uint8_t param)
+void AutomaticReplyCallback(uint8_t param)
 {
     loRa.macStatus.macState = IDLE;
-    LORAWAN_Send (0, 0, 0, 0);  // send an empty unconfirmed packet
-    loRa.lorawanMacStatus.fPending = DISABLED; //clear the fPending flag
+    LORAWAN_Send(0, 0, 0, 0);  // Send an empty unconfirmed packet
+    loRa.lorawanMacStatus.fPending = DISABLED; // Clear the fPending flag
 }
 
-void UpdateCurrentDataRate (uint8_t valueNew)
+void UpdateCurrentDataRate(uint8_t valueNew)
 {
     loRa.currentDataRate = valueNew;
 }
 
-void UpdateTxPower (uint8_t txPowerNew)
+void UpdateTxPower(uint8_t txPowerNew)
 {
     loRa.txPower = txPowerNew;
 }
 
-void UpdateRetransmissionAckTimeoutState (void)
+void UpdateRetransmissionAckTimeoutState(void)
 {
     loRa.macStatus.macState = RETRANSMISSION_DELAY;
     SwTimerSetTimeout(loRa.ackTimeoutTimerId, MS_TO_TICKS_SHORT(loRa.protocolParameters.ackTimeout));
@@ -1115,14 +1073,14 @@ void UpdateRetransmissionAckTimeoutState (void)
 
 void UpdateJoinSuccessState(uint8_t param)
 {
-    loRa.lorawanMacStatus.joining = 0;  //join was done
-    loRa.macStatus.networkJoined = 1;   //network is joined
+    loRa.lorawanMacStatus.joining = 0;  // Join was done
+    loRa.macStatus.networkJoined = 1;   // Network is joined
     loRa.macStatus.macState = IDLE;
 
-    loRa.adrAckCnt = 0;  // adr ack counter becomes 0, it increments only for ADR set
+    loRa.adrAckCnt = 0;  // ADR ACK counter becomes 0, it increments only for ADR set
     loRa.counterAdrAckDelay = 0;
 
-    // if the link check mechanism was enabled, then its timer will begin counting
+    // If the link check mechanism was enabled, then its timer will begin counting
     if (loRa.macStatus.linkCheck == ENABLED)
     {
         SwTimerSetTimeout(loRa.linkCheckTimerId, MS_TO_TICKS(loRa.periodForLinkCheck));
@@ -1131,14 +1089,14 @@ void UpdateJoinSuccessState(uint8_t param)
     
     if (rxPayload.RxJoinResponse != NULL)
     {
-        rxPayload.RxJoinResponse(ACCEPTED); // inform the application layer that join was successful via a callback
+        rxPayload.RxJoinResponse(ACCEPTED); // Inform the application layer that join was successful via a callback
     }
 }
 
-void UpdateMinMaxChDataRate (void)
+void UpdateMinMaxChDataRate(void)
 {
     uint8_t i;
-    // after updating the data range of a channel we need to check if the minimum dataRange has changed or not.
+    // After updating the data range of a channel we need to check if the minimum dataRange has changed or not.
     // The user cannot set the current data rate outside the range of the data range
     loRa.minDataRate = DR7;
     loRa.maxDataRate = DR0;
@@ -1156,20 +1114,20 @@ void UpdateMinMaxChDataRate (void)
     }
 }
 
-void UpdateReceiveWindow2Parameters (uint32_t frequency, uint8_t dataRate)
+void UpdateReceiveWindow2Parameters(uint32_t frequency, uint8_t dataRate)
 {
     loRa.receiveWindow2Parameters.dataRate = dataRate;
     loRa.receiveWindow2Parameters.frequency = frequency;
 }
 
-void ResetParametersForConfirmedTransmission (void)
+void ResetParametersForConfirmedTransmission(void)
 {
     loRa.macStatus.macState = IDLE;
     loRa.counterRepetitionsConfirmedUplink = 1;
     loRa.lorawanMacStatus.ackRequiredFromNextDownlinkMessage = DISABLED;
 }
 
-void ResetParametersForUnconfirmedTransmission (void)
+void ResetParametersForUnconfirmedTransmission(void)
 {
     loRa.macStatus.macState = IDLE;
     loRa.counterRepetitionsUnconfirmedUplink = 1;
@@ -1183,17 +1141,18 @@ void SetJoinFailState(void)
     loRa.macStatus.macState = IDLE;
     if (rxPayload.RxJoinResponse != NULL)
     {
-        rxPayload.RxJoinResponse(REJECTED); // inform the application layer that join failed via callback
+        // Inform the application layer that join failed via callback
+        rxPayload.RxJoinResponse(REJECTED); 
     }
 }
 
-//Generates a 16-bit random number based on some measurements made by the radio (seed is initialized inside mac Reset)
-uint16_t Random (uint16_t max)
+//Generates a 16-bit random number based on some measurements made by the radio (seed is initialized inside MAC Reset)
+uint16_t Random(uint16_t max)
 {
-    return (rand () % max);
+    return(rand() % max);
 }
 
-LorawanError_t LORAWAN_RxDone (uint8_t *buffer, uint8_t bufferLength)
+LorawanError_t LORAWAN_RxDone(uint8_t *buffer, uint8_t bufferLength)
 {
     uint32_t computedMic, extractedMic;
     Mhdr_t mhdr;
@@ -1204,52 +1163,31 @@ LorawanError_t LORAWAN_RxDone (uint8_t *buffer, uint8_t bufferLength)
     uint8_t temp;
     FCnt_t tempFcnt;
 
-
-#if defined(DEBUGMACMSG)
-   // debug bct
-    {
-    uint8_t debug_buf[100];
-    strcpy(debug_buf, "### LORAWAN_RxDone:");
-    // Parser_IntArrayToHexAscii(fOptsLen, ptr, (debug_buf + strlen(debug_buf)));
-    Parser_TxAddReply(debug_buf, strlen(debug_buf));
-    }
-#endif // DEBUGMACMSG
-    
     RADIO_ReleaseData();
 
-    /**
-     * If the macStatus is not DISABLED perform normal RxDone processing
-     */
+    // If the macStatus is not ENABLED perform normal RxDone processing
     if (loRa.macStatus.macPause == DISABLED)
     {
-        /**
-         * Set the mhdr union element 'value' to the LoRaWAN MAC Header information.
-         * This allows the MAC Header information to be read.
-         */
+        // Set the MHDR union element 'value' to the LoRaWAN MAC Header information.
+        // This allows the MAC Header information to be read.
         mhdr.value = buffer[0];
 
-        /**
-         * Test if this is a Gateway OTAA Join Accept message
-         */
-
+        // Test if this is a Gateway OTAA Join Accept message
         if ( (mhdr.bits.mType == FRAME_TYPE_JOIN_ACCEPT) && (loRa.activationParameters.activationType == OTAA) )
         {
+            // Process the Join Accept downlink message
+            // temp is used to step through multiple AES encrypted blocks
+            // Setting temp to bufferLength - 1, skips over the 1-byte MAC Header
+            //
+            // The AESEncodeLoRa function decodes the buffer in place.
+            // That is, an encrypted buffer is passed in, and the decrypted
+            // information is returned in the same buffer.
 
-            /**
-             * process the Join Accept downlink message
-             *
-             * temp is used to step through multiple AES encrypted blocks
-             * Setting temp to bufferLength - 1, skips over the 1-byte MAC Header
-             *
-             * The AESEncodeLoRa function decodes the buffer in place.
-             * That is, an encrypted buffer is passed in, and the decrypted
-             * information is returned in the same buffer.
-             */
             temp = bufferLength - 1; //MHDR not encrypted
             while (temp > 0) 
             {                
-                //Decode message
-                AESEncodeLoRa (&buffer[bufferLength - temp], loRa.activationParameters.applicationKey);
+                // Decode message
+                AESEncodeLoRa(&buffer[bufferLength - temp], loRa.activationParameters.applicationKey);
                 if (temp > AES_BLOCKSIZE)
                 {
                     temp -= AES_BLOCKSIZE;
@@ -1260,31 +1198,21 @@ LorawanError_t LORAWAN_RxDone (uint8_t *buffer, uint8_t bufferLength)
                 }               
             }
 
-            /**
-             * Using the decrypted receive data, calculate the Message Integrity Code (MIC)
-             */
-            //verify MIC
+            // Using the decrypted receive data, calculate the Message Integrity Code (MIC)
             computedMic = ComputeMic (loRa.activationParameters.applicationKey, 
                     buffer, 
                     bufferLength - sizeof(extractedMic)
                     );
 
-            /**
-             * extract the MIC from the received message
-             */
+            // Extract the MIC from the received message
             extractedMic = ExtractMic (buffer, bufferLength);
             if (extractedMic != computedMic)
             {
-                /**
-                 * validate that the MAC is in an RX state before setting Join fail
-                 *
-                 * Since the MIC test failed, we are done here.
-                 * Return with an error status.
-                 */
-                if  ((loRa.macStatus.macState == RX2_OPEN) 
-                        || ((loRa.macStatus.macState == RX1_OPEN) 
-                            && (loRa.rx2DelayExpired))
-                    )
+                // Validate that the MAC is in an RX state before setting Join fail
+                //
+                // Since the MIC test failed, we are done here.
+                // Return with an error status.
+                if  ((loRa.macStatus.macState == RX2_OPEN) || ((loRa.macStatus.macState == RX1_OPEN) && (loRa.rx2DelayExpired)) )
                 {
                     if (loRa.macStatus.networkJoined == 0)
                     {
@@ -1304,86 +1232,68 @@ LorawanError_t LORAWAN_RxDone (uint8_t *buffer, uint8_t bufferLength)
                 return INVALID_PARAMETER;
             }
 
+            // If we are here, we have received received a valid Join Accept message 
+            // from the Gateway
+            
+            // If the Join Accept message arrived during RX1 the RX2 window is not 
+            // required. Disable RX2.
 
-
-
-            /**
-             * If we are here, we have received received a valid 
-             * Join Accept message from the Gateway
-             */
-
-            /** If the Join Accept message arrived during RX1
-             * the RX2 window is not required.  Disable RX2.
-             */
-            // if the join request message was received during receive window 1, 
+            // If the join request message was received during receive window 1, 
             // receive window 2 should not open any more, so its timer will be stopped
             if (loRa.macStatus.macState == RX1_OPEN)
             {
-                SwTimerStop (loRa.joinAccept2TimerId);
+                SwTimerStop(loRa.joinAccept2TimerId);
             }
 
-            /**
-             * Process the contents of the Join Accept message
-             */
+            // Process the contents of the Join Accept message
             JoinAccept_t *joinAccept;
             joinAccept = (JoinAccept_t*)buffer;
 
-            loRa.activationParameters.deviceAddress.value = joinAccept->members.deviceAddress.value; //device address is saved
+            loRa.activationParameters.deviceAddress.value = joinAccept->members.deviceAddress.value; // Device address is saved
 
-            UpdateReceiveDelays (joinAccept->members.rxDelay & LAST_NIBBLE); //receive delay 1 and receive delay 2 
-            //are updated according to the rxDelay field 
-            //from the join accept message
+            // Receive delay 1 and receive delay 2 are updated according to the rxDelay 
+            // field from the join accept message
+            UpdateReceiveDelays(joinAccept->members.rxDelay & LAST_NIBBLE); 
 
             UpdateDLSettings(joinAccept->members.DLSettings.bits.rx2DataRate, 
-                    joinAccept->members.DLSettings.bits.rx1DROffset
-                    );
+                joinAccept->members.DLSettings.bits.rx1DROffset);
 
-            UpdateCfList (bufferLength, joinAccept);
+            UpdateCfList(bufferLength, joinAccept);
 
-            ComputeSessionKeys (joinAccept); //for activation by personalization, 
-            //the network and application session keys are computed
+            // For activation by personalization, the network and application 
+            // session keys are computed
+            ComputeSessionKeys(joinAccept); 
 
             UpdateJoinSuccessState(0);
 
-            loRa.fCntUp.value = 0;   // uplink counter becomes 0
-            loRa.fCntDown.value = 0; // downlink counter becomes 0              
+            loRa.fCntUp.value = 0;   // Reset Uplink counter
+            loRa.fCntDown.value = 0; // Reset Downlink counter
 
             if (CLASS_C == loRa.deviceClass)
             {
                 loRa.macStatus.macState = CLASS_C_RX2_2_OPEN;
                 LORAWAN_EnterContinuousReceive();
             }
+            
+            // OTAA Join Accept processing has been completed
             return OK;
+        } // End OTAA Join Accept message
 
-            /**
-             * OTAA Join Accept processing has been completed
-             */
-        }
-
-
-
-
-        /**
-         * Since the message is not an OTAA Join Accept message,
-         * validate that MType is a valid downlink message type
-         */
-        else if ( (mhdr.bits.mType == FRAME_TYPE_DATA_UNCONFIRMED_DOWN) 
-                || (mhdr.bits.mType == FRAME_TYPE_DATA_CONFIRMED_DOWN) 
-                )
+        // Since the message is not an OTAA Join Accept message,
+        // validate that MType is a valid downlink message type
+        else if ( (mhdr.bits.mType == FRAME_TYPE_DATA_UNCONFIRMED_DOWN) || (mhdr.bits.mType == FRAME_TYPE_DATA_CONFIRMED_DOWN) )
         {
-            loRa.crtMacCmdIndex = 0;   // clear the macCommands requests list
+            // Downlink message
+            loRa.crtMacCmdIndex = 0;   // Clear the MAC commands requests list
 
-            /**
-             * cast the receive message buffer to a Frame Header
-             */
+            // Cast the receive message buffer to a Frame Header
             Hdr_t *hdr;
             hdr=(Hdr_t*)buffer;
 
-            // CLASS C MULTICAST
+            // Class C Multicast
             if ( (CLASS_C == loRa.deviceClass) 
                     && (hdr->members.devAddr.value == loRa.activationParameters.mcastDeviceAddress.value) 
-                    && (ENABLED == loRa.macStatus.mcastEnable)
-               )
+                    && (ENABLED == loRa.macStatus.mcastEnable) )
             {
 
                 if (FLAG_ERROR == CheckMcastFlags(hdr))
@@ -1393,11 +1303,8 @@ LorawanError_t LORAWAN_RxDone (uint8_t *buffer, uint8_t bufferLength)
                     return MCAST_MSG_ERROR;
                 }
 
-
-
-                //Calculate temporary Fcnt
-                //Need to simplify the code for next release based on the tempFcnt Changes
-
+                // Calculate temporary Fcnt
+                // Need to simplify the code for next release based on the tempFcnt Changes
                 tempFcnt.members.valueLow = hdr->members.fCnt;
                 if(tempFcnt.members.valueLow >= loRa.fMcastCntDown.members.valueLow)
                     tempFcnt.members.valueHigh = loRa.fMcastCntDown.members.valueHigh;
@@ -1406,16 +1313,13 @@ LorawanError_t LORAWAN_RxDone (uint8_t *buffer, uint8_t bufferLength)
 
                 AssembleEncryptionBlock (1, tempFcnt.value,
                         bufferLength - sizeof (computedMic),
-                        0x49, MCAST_ENABLED
-                        );
+                        0x49, MCAST_ENABLED);
                 memcpy (&radioBuffer[0], aesBuffer, sizeof (aesBuffer));
                 memcpy (&radioBuffer[16], buffer, bufferLength-sizeof(computedMic));
 
-
                 AESCmac(loRa.activationParameters.mcastNetworkSessionKey, 
                         aesBuffer, &radioBuffer[0], 
-                        bufferLength - sizeof(computedMic) + sizeof (aesBuffer)
-                       );
+                        bufferLength - sizeof(computedMic) + sizeof (aesBuffer));
 
                 memcpy(&computedMic, aesBuffer, sizeof(computedMic));
                 extractedMic = ExtractMic (&buffer[0], bufferLength);
@@ -1426,9 +1330,6 @@ LorawanError_t LORAWAN_RxDone (uint8_t *buffer, uint8_t bufferLength)
                     LORAWAN_EnterContinuousReceive();
                     return MCAST_MSG_ERROR;
                 }
-
-
-
 
                 if (hdr->members.fCnt >= loRa.fMcastCntDown.members.valueLow)
                 {
@@ -1443,16 +1344,11 @@ LorawanError_t LORAWAN_RxDone (uint8_t *buffer, uint8_t bufferLength)
                         LORAWAN_EnterContinuousReceive();
                         return MCAST_MSG_ERROR;
                     }
-
-
-
-
                     else
                     {
-                        loRa.fMcastCntDown.members.valueLow = hdr->members.fCnt;  //frame counter received is OK, 
-                        //so the value received from the 
-                        //server is kept in sync with the 
-                        //value stored in the end device
+                        loRa.fMcastCntDown.members.valueLow = hdr->members.fCnt;  
+                        // Frame counter received is OK, so the value received from the 
+                        // server is kept in sync with the value stored in the end device
                     }
                 }
                 else
@@ -1473,10 +1369,6 @@ LorawanError_t LORAWAN_RxDone (uint8_t *buffer, uint8_t bufferLength)
                         LORAWAN_EnterContinuousReceive();
                         return MCAST_MSG_ERROR;
                     }
-
-
-
-
                 }
 
                 if (loRa.fMcastCntDown.value == UINT32_MAX)
@@ -1491,9 +1383,6 @@ LorawanError_t LORAWAN_RxDone (uint8_t *buffer, uint8_t bufferLength)
                     return FRAME_COUNTER_ERROR_REJOIN_NEEDED;
                 }
 
-
-
-
                 if (CLASS_C_RX2_1_OPEN == loRa.macStatus.macState)
                 {
                     SwTimerStop (loRa.receiveWindow1TimerId);
@@ -1506,22 +1395,20 @@ LorawanError_t LORAWAN_RxDone (uint8_t *buffer, uint8_t bufferLength)
 
                 buffer = buffer + 8;
 
-                if ( (sizeof(extractedMic) + hdr->members.fCtrl.fOptsLen + 8) != bufferLength)     //we have port and 
-                    //FRM Payload in the 
-                    //reception packet
+                if ( (sizeof(extractedMic) + hdr->members.fCtrl.fOptsLen + 8) != bufferLength)     
                 {
+                    //we have port and FRM Payload in the reception packet
                     fPort = *(buffer++);
 
                     frmPayloadLength = bufferLength 
                         - 8 
-                        - sizeof (extractedMic); //frmPayloadLength includes port
+                        - sizeof(extractedMic); //frmPayloadLength includes port
                     bufferIndex = 16 + 9;
 
-                    EncryptFRMPayload (buffer, frmPayloadLength - 1, 1, 
+                    EncryptFRMPayload(buffer, frmPayloadLength - 1, 1, 
                             loRa.fMcastCntDown.value, 
                             loRa.activationParameters.mcastApplicationSessionKey, 
-                            bufferIndex, radioBuffer, MCAST_ENABLED
-                            );
+                            bufferIndex, radioBuffer, MCAST_ENABLED);
                     packet = buffer - 1;
                 }
                 else
@@ -1538,44 +1425,27 @@ LorawanError_t LORAWAN_RxDone (uint8_t *buffer, uint8_t bufferLength)
                     //loRa.lorawanMacStatus.synchronization = 0; // ?? 
                     //clear the synchronization flag, because if the user will send 
                     //a packet in the callback there is no need to send an empty packet
-
                     rxPayload.RxAppData (packet, frmPayloadLength, MAC_OK);
                 }
 
                 loRa.macStatus.macState = CLASS_C_RX2_2_OPEN;
                 LORAWAN_EnterContinuousReceive();
                 return MAC_OK;
+            } // Class C Multicast processing has been completed
 
-                /**
-                 * Class C Multicast processing has been completed
-                 */
-            }
-
-
-
-
-            /**
-             * If the device Address in the message header (hdr) is not
-             * this device's address, return with an error.
-             */
-            //  verify if the device address stored in the activation parameters 
-            //  is the same with the device address piggybacked in the received packet, 
-            //  if not ignore packet
+            // Verify if the device address stored in the activation parameters 
+            // is the same with the device address piggybacked in the received packet, 
+            // if not ignore packet
             if (hdr->members.devAddr.value != loRa.activationParameters.deviceAddress.value)
             {
                 SetReceptionNotOkState(MAC_NOT_OK);
                 return INVALID_PARAMETER;
             }
+            // At this point we know that the device address in the message
+            // is the same as this device's address.
 
-
-
-            /**
-             * At this point we know that the device address in the message
-             * is the same as this device's address.
-             */
-
-            //Calculate temporary Fcnt
-            //Need to simplify the code for next release based on the tempFcnt Changes           
+            // Calculate temporary Fcnt
+            // Need to simplify the code for next release based on the tempFcnt Changes           
             tempFcnt.members.valueLow = hdr->members.fCnt;
             if(tempFcnt.members.valueLow >= loRa.fCntDown.members.valueLow)
                 tempFcnt.members.valueHigh = loRa.fCntDown.members.valueHigh;
@@ -1598,7 +1468,7 @@ LorawanError_t LORAWAN_RxDone (uint8_t *buffer, uint8_t bufferLength)
             memcpy(&computedMic, aesBuffer, sizeof(computedMic));
             extractedMic = ExtractMic (&buffer[0], bufferLength);
 
-            // verify if the computed MIC is the same with the 
+            // Verify if the computed MIC is the same with the 
             // MIC piggybacked in the packet, if not ignore packet
             if (computedMic != extractedMic)
             {
@@ -1606,27 +1476,22 @@ LorawanError_t LORAWAN_RxDone (uint8_t *buffer, uint8_t bufferLength)
                 return INVALID_PARAMETER;
             }
 
-
-
-
-
-            //  frame counter check, frame counter received should be greater 
+            //  Frame counter check, frame counter received should be greater 
             //  than last frame counter received, otherwise it  was an overflow
             if (hdr->members.fCnt >= loRa.fCntDown.members.valueLow)
             {
-                if ((hdr->members.fCnt - loRa.fCntDown.members.valueLow) 
-                        > loRa.protocolParameters.maxFcntGap
-                   ) //if this difference is greater than the value of max_fct_gap 
-                    //then too many data frames have been lost then subsequent will be discarded
+                if ((hdr->members.fCnt - loRa.fCntDown.members.valueLow) > loRa.protocolParameters.maxFcntGap) 
                 {
+                    // If this difference is greater than the value of max_fct_gap 
+                    // then too many data frames have been lost then subsequent will be discarded
                     loRa.lorawanMacStatus.ackRequiredFromNextDownlinkMessage = 0; // reset the flag
                     loRa.macStatus.macState = IDLE;
                     if (rxPayload.RxAppData != NULL)
                     {
-                        loRa.lorawanMacStatus.synchronization = 0; //clear the synchronization flag, 
-                        //because if the user will send a packet 
-                        //in the callback there is no need to 
-                        //send an empty packet
+                        loRa.lorawanMacStatus.synchronization = 0; 
+                        // Clear the synchronization flag, because if the user will 
+                        // send a packet in the callback there is no need to send an 
+                        // empty packet
                         rxPayload.RxAppData (NULL, 0, MAC_NOT_OK);
                     }
                     loRa.macStatus.rxDone = 0; 
@@ -1640,37 +1505,28 @@ LorawanError_t LORAWAN_RxDone (uint8_t *buffer, uint8_t bufferLength)
                     }
                     return FRAME_COUNTER_ERROR_REJOIN_NEEDED;
                 }
-
-
-
-
                 else
                 {
-                    loRa.fCntDown.members.valueLow = hdr->members.fCnt;  //frame counter received is OK, 
-                    //so the value received from 
-                    //the server is kept in sync 
-                    //with the value stored in the 
-                    //end device                    
+                    loRa.fCntDown.members.valueLow = hdr->members.fCnt;  
+                    // Frame counter received is OK, so the value received from 
+                    // the server is kept in sync with the value stored in the 
+                    // end device                    
                 }                
             }
             else
             {                
                 if(((65535 - loRa.fCntDown.members.valueLow) + hdr->members.fCnt) < loRa.protocolParameters.maxFcntGap)
                 {
-                    //Frame counter rolled over
+                    // Frame counter rolled over
                     loRa.fCntDown.members.valueLow = hdr->members.fCnt;
                     loRa.fCntDown.members.valueHigh ++;                    
                 }
                 else
                 {
                     SetReceptionNotOkState(MAC_NOT_OK);
-                    //Reject packet
+                    // Reject packet
                     return INVALID_PARAMETER;
                 }
-
-
-
-
             }
 
             rxParamSetupReqAnsFlag = false;
@@ -1679,7 +1535,6 @@ LorawanError_t LORAWAN_RxDone (uint8_t *buffer, uint8_t bufferLength)
 
             if (loRa.fCntDown.value == UINT32_MAX)
             {
-
                 // Inform application about rejoin in status
                 loRa.macStatus.rejoinNeeded = 1;
                 if (CLASS_C == loRa.deviceClass)
@@ -1690,20 +1545,17 @@ LorawanError_t LORAWAN_RxDone (uint8_t *buffer, uint8_t bufferLength)
                 return FRAME_COUNTER_ERROR_REJOIN_NEEDED;
             }
 
-
-
-
-            // if the downlink message was received during receive window 1, 
-            // receive window 2 should not open any more, 
-            // so its timer will be stopped
+            // If the downlink message was received during receive window 1, 
+            // receive window 2 should not open any more, so its timer will be 
+            // stopped
             if (loRa.macStatus.macState == RX1_OPEN)
             {
-                SwTimerStop (loRa.receiveWindow2TimerId);
+                SwTimerStop(loRa.receiveWindow2TimerId);
             }
 
-            loRa.counterRepetitionsUnconfirmedUplink = 1; // this is a guard for LORAWAN_RxTimeout, 
-            // for any packet that is received, 
-            // the last uplink packet should not be retransmitted
+            loRa.counterRepetitionsUnconfirmedUplink = 1; 
+            // This is a guard for LORAWAN_RxTimeout, for any packet that is 
+            // received, the last uplink packet should not be retransmitted
 
             CheckFlags (hdr);
 
@@ -1718,12 +1570,12 @@ LorawanError_t LORAWAN_RxDone (uint8_t *buffer, uint8_t bufferLength)
             }
             else
             {
-                buffer = buffer + 8;  // 8 bytes for size of header without mac commands
+                buffer = buffer + 8;  // 8 bytes for size of header without MAC commands
             }
-            if ( (sizeof(extractedMic) + hdr->members.fCtrl.fOptsLen + 8) != bufferLength)     //we have port and 
-                //FRM Payload in the 
-                //reception packet
+            
+            if ( (sizeof(extractedMic) + hdr->members.fCtrl.fOptsLen + 8) != bufferLength)     
             {
+                // We have port and FRM Payload in the reception packet
                 fPort = *(buffer++);
 
                 frmPayloadLength = bufferLength 
@@ -1760,24 +1612,24 @@ LorawanError_t LORAWAN_RxDone (uint8_t *buffer, uint8_t bufferLength)
                 packet = NULL;
             }
 
-            loRa.counterRepetitionsUnconfirmedUplink = 1; // reset the counter
+            loRa.counterRepetitionsUnconfirmedUplink = 1; // Reset the counter
 
-            loRa.adrAckCnt = 0; // if a packet comes and is correct after device address and MIC, the counter will start counting again from 0 (any received downlink frame following an uplink frame resets the ADR_ACK_CNT counter)
-            loRa.counterAdrAckDelay = 0; // if a packet was received, the counter for adr ack limit will become 0
-            loRa.lorawanMacStatus.adrAckRequest = 0; //reset the flag for ADR ACK request
+            loRa.adrAckCnt = 0; // If a packet comes and is correct after device address and MIC, the counter will start counting again from 0 (any received downlink frame following an uplink frame resets the ADR_ACK_CNT counter)
+            loRa.counterAdrAckDelay = 0; // If a packet was received, the counter for adr ack limit will become 0
+            loRa.lorawanMacStatus.adrAckRequest = 0; // Reset the flag for ADR ACK request
 
-            loRa.macStatus.rxDone = 1;  //packet is ready for reception for the application layer
+            loRa.macStatus.rxDone = 1;  // Packet is ready for reception for the application layer
 
-            if ( loRa.lorawanMacStatus.ackRequiredFromNextDownlinkMessage == 1 ) //if last uplink packet was confirmed;
+            if ( loRa.lorawanMacStatus.ackRequiredFromNextDownlinkMessage == 1 ) // If last uplink packet was confirmed;
             {
-                if  (hdr->members.fCtrl.ack == 1) // if ACK was received
+                if  (hdr->members.fCtrl.ack == 1) // If ACK was received
                 {
-                    loRa.lorawanMacStatus.ackRequiredFromNextDownlinkMessage = 0; // reset the flag
+                    loRa.lorawanMacStatus.ackRequiredFromNextDownlinkMessage = 0; // Reset the flag
                     response = MAC_OK;
                     loRa.macStatus.macState = IDLE;
                     if (rxPayload.RxAppData != NULL)
                     {
-                        loRa.lorawanMacStatus.synchronization = 0; //clear the synchronization flag, because if the user will send a packet in the callback there is no need to send an empty packet
+                        loRa.lorawanMacStatus.synchronization = 0; // Clear the synchronization flag, because if the user will send a packet in the callback there is no need to send an empty packet
                         rxPayload.RxAppData (packet, frmPayloadLength, response);
                     }
                     loRa.macStatus.rxDone = 0;
@@ -1793,15 +1645,15 @@ LorawanError_t LORAWAN_RxDone (uint8_t *buffer, uint8_t bufferLength)
                         }
                         else
                         {
-                            //searches for the minimum channel timer and starts a software timer for it
+                            // Searches for the minimum channel timer and starts a software timer for it
                             StartReTxTimer();                            
                         }
                     }
-                }
-                //if ACK was required, but not received, then retransmission will happen
+                } 
                 else
-                {
-                    UpdateRetransmissionAckTimeoutState ();
+                { 
+                    // If ACK was required, but not received, then retransmission will happen
+                    UpdateRetransmissionAckTimeoutState();
                 }
             }
             else
@@ -1837,7 +1689,7 @@ LorawanError_t LORAWAN_RxDone (uint8_t *buffer, uint8_t bufferLength)
 
             if (CLASS_C == loRa.deviceClass)
             {
-                //In the case of a auto reply.. the device may be in transmit mode
+                // In the case of a auto reply.. the device may be in transmit mode
                 if((RADIO_GetStatus() & RADIO_FLAG_TRANSMITTING) == 0)
                 {
                     loRa.macStatus.macState = CLASS_C_RX2_2_OPEN;
@@ -1847,18 +1699,14 @@ LorawanError_t LORAWAN_RxDone (uint8_t *buffer, uint8_t bufferLength)
         }
         else
         {
-            //if the mType is incorrect, set reception not OK state
+            // If the mType is incorrect, set reception not OK state
             SetReceptionNotOkState (MAC_NOT_OK);
             return INVALID_PARAMETER;
         }
-
-
-
-
     }
     else
     {
-        //Standalone radio reception OK, using the same callback as in LoRaWAN rx
+        // Standalone radio reception OK, using the same callback as in LoRaWAN RX
         if ( rxPayload.RxAppData != NULL )
         {
             if ((RADIO_GetStatus() & RADIO_FLAG_RXERROR) == 0)
@@ -1874,27 +1722,22 @@ LorawanError_t LORAWAN_RxDone (uint8_t *buffer, uint8_t bufferLength)
     return 1;
 }
 
-
-
-
-static uint8_t LORAWAN_GetMaxPayloadSize (void)
+static uint8_t LORAWAN_GetMaxPayloadSize(void)
 {
     uint8_t result = 0;
     uint8_t macCommandsLength;
 
     macCommandsLength = CountfOptsLength();
 
-    if (loRa.crtMacCmdIndex == loRa.crtMacCmdNewIndex)  //there are no MAC commands to either respond or interrogate
+    if (loRa.crtMacCmdIndex == loRa.crtMacCmdNewIndex)  
     {
+        // There are no MAC commands to either respond or interrogate
         result = maxPayloadSize[loRa.currentDataRate];
-        if ( rxParamSetupReqAnsFlag )
-        {
+        if (rxParamSetupReqAnsFlag)
             result -= 2;
-        }
-         if ( rxTimingSetupReqAnsFlag )
-        {
+
+        if (rxTimingSetupReqAnsFlag)
              result -= 1;
-         }
     }
     else
     {
@@ -1912,20 +1755,10 @@ static uint8_t* MacExecuteCommands (uint8_t *buffer, uint8_t fOptsLen)
     uint8_t *ptr;
     ptr = buffer;
     uint8_t temp;
-    
-#if defined(DEBUGMACMSG)
-   // debug bct
-    {
-    uint8_t debug_buf[100];
-    strcpy(debug_buf, "### MacExecuteCommands:");
-    Parser_IntArrayToHexAscii(fOptsLen, ptr, (debug_buf + strlen(debug_buf)));
-    Parser_TxAddReply(debug_buf, strlen(debug_buf));
-    }
-#endif // DEBUGMACMSG
-    
+   
     while ( (ptr < ( buffer + fOptsLen )) && (done == false) )
     {
-        //Clean structure before using it         
+        // Clean structure before using it         
         loRa.macCommands[loRa.crtMacCmdIndex].channelMaskAck = 0;
         loRa.macCommands[loRa.crtMacCmdIndex].dataRateAck = 0;
         loRa.macCommands[loRa.crtMacCmdIndex].powerAck = 0;
@@ -1935,85 +1768,72 @@ static uint8_t* MacExecuteCommands (uint8_t *buffer, uint8_t fOptsLen)
         loRa.macCommands[loRa.crtMacCmdIndex].dataRateRangeAck = 0;
         loRa.macCommands[loRa.crtMacCmdIndex].channelFrequencyAck = 0;
 
-        //Reply has the same value as request
+        // Reply has the same value as request
         loRa.macCommands[loRa.crtMacCmdIndex].receivedCid = *ptr;
         
         switch (*ptr ++)
         {
             case LINK_CHECK_CID:
-            {
                 ptr = ExecuteLinkCheck (ptr );
                 // No reply to server is needed 
                 loRa.macCommands[loRa.crtMacCmdIndex].receivedCid = INVALID_VALUE;
-            } break;
+                break;
 
             case LINK_ADR_CID:
-            {
                 ptr = ExecuteLinkAdr (ptr, (buffer+fOptsLen) );
-            } break;
+                break;
 
             case DUTY_CYCLE_CID:
-            {
                 ptr = ExecuteDutyCycle(ptr);
-            } break;
+                break;
 
             case RX_PARAM_SETUP_CID:
-            {
                 ptr = ExecuteRxParamSetupReq (ptr);
-            } break;
+                break;
 
             case DEV_STATUS_CID:
-            {
-                 ptr = ExecuteDevStatus (ptr);
-            } break;
+                ptr = ExecuteDevStatus (ptr);
+                break;
 
             case NEW_CHANNEL_CID:
-            {
                 ptr = ExecuteNewChannel (ptr);
-
-            } break;
+                break;
 
             case RX_TIMING_SETUP_CID:
-            {
                 ptr = ExecuteRxTimingSetup (ptr);
-            } break;
+                break;
 
             default:
-            {
                 done = true;  // Unknown MAC commands cannot be skipped and the first unknown MAC command terminates the processing of the MAC command sequence.
                 ptr = buffer + fOptsLen;
                 loRa.macCommands[loRa.crtMacCmdIndex].receivedCid = INVALID_VALUE;
-            } break;
+                break;
         }
 
-        if((loRa.macCommands[loRa.crtMacCmdIndex].receivedCid != INVALID_VALUE) &&
-           (loRa.crtMacCmdIndex < MAX_NB_CMD_TO_PROCESS))
-        {
-            loRa.crtMacCmdIndex ++;
-        }
+        if((loRa.macCommands[loRa.crtMacCmdIndex].receivedCid != INVALID_VALUE) && (loRa.crtMacCmdIndex < MAX_NB_CMD_TO_PROCESS))
+            loRa.crtMacCmdIndex++;
+
         if(loRa.crtMacCmdIndex == MAX_NB_CMD_TO_PROCESS)
-        {
             loRa.crtMacCmdIndex = 0;
-        }
     }
     return ptr;
 }
 
-static uint8_t* ExecuteLinkCheck (uint8_t *ptr)
+static uint8_t* ExecuteLinkCheck(uint8_t *ptr)
 {
    loRa.linkCheckMargin = *(ptr++);
    loRa.linkCheckGwCnt = *(ptr++);
    return ptr;
 }
 
-static uint8_t* ExecuteRxTimingSetup (uint8_t *ptr)
+static uint8_t* ExecuteRxTimingSetup(uint8_t *ptr)
 {
    uint8_t delay;
 
    delay = (*ptr) & LAST_NIBBLE;
    ptr++;
 
-   UpdateReceiveDelays (delay);
+   UpdateReceiveDelays(delay);
    loRa.macStatus.rxTimingSetup = ENABLED;
    
    rxTimingSetupReqAnsFlag = true;
@@ -2021,16 +1841,16 @@ static uint8_t* ExecuteRxTimingSetup (uint8_t *ptr)
    return ptr;
 }
 
-static void AssemblePacket (bool confirmed, uint8_t port, uint8_t *buffer, uint16_t bufferLength)
+static void AssemblePacket(bool confirmed, uint8_t port, uint8_t *buffer, uint16_t bufferLength)
 {
     Mhdr_t mhdr;
     uint8_t bufferIndex = 16;
     FCtrl_t fCtrl;
     uint8_t macCmdIdx = 0;
 
-    memset (&mhdr, 0, sizeof (mhdr) );    //clear the header structure Mac header
-    memset (&macBuffer[0], 0, sizeof (macBuffer) ); //clear the mac buffer
-    memset (aesBuffer, 0, sizeof (aesBuffer) );  //clear the transmission buffer
+    memset (&mhdr, 0, sizeof (mhdr) );              // Clear the header structure Mac header
+    memset (&macBuffer[0], 0, sizeof (macBuffer) ); // Clear the MAC buffer
+    memset (aesBuffer, 0, sizeof (aesBuffer) );     // Clear the transmission buffer
 
     if (confirmed == 1)
     {
@@ -2045,19 +1865,22 @@ static void AssemblePacket (bool confirmed, uint8_t port, uint8_t *buffer, uint1
     mhdr.bits.rfu = 0;
     macBuffer[bufferIndex++] = mhdr.value;
 
-    memcpy (&macBuffer[bufferIndex], loRa.activationParameters.deviceAddress.buffer, sizeof (loRa.activationParameters.deviceAddress.buffer) );
+    memcpy (&macBuffer[bufferIndex], loRa.activationParameters.deviceAddress.buffer, sizeof (loRa.activationParameters.deviceAddress.buffer));
     bufferIndex = bufferIndex + sizeof(loRa.activationParameters.deviceAddress.buffer);
 
-    fCtrl.value = 0; //clear the fCtrl value
+    fCtrl.value = 0; // Clear the fCtrl value
 
     if (loRa.macStatus.adr == ENABLED) 
     {
-        fCtrl.adr = ENABLED; // set the ADR bit in the packet
+        fCtrl.adr = ENABLED; // Set the ADR bit in the packet
         if(loRa.currentDataRate > loRa.minDataRate)
         {
             fCtrl.adrAckReq = ENABLED; 
-            loRa.lorawanMacStatus.adrAckRequest = ENABLED; // set the flag that to remember that this bit was set
-            loRa.adrAckCnt ++;   // if adr is set, each time the uplink frame counter is incremented, the device increments the adr_ack_cnt, any received downlink frame following an uplink frame resets the ADR_ACK_CNT counter
+            loRa.lorawanMacStatus.adrAckRequest = ENABLED; // Set the flag that to remember that this bit was set
+            // If ADR is set, each time the uplink frame counter is incremented, the 
+            // device increments the adrAckCnt, any received downlink frame following 
+            // an uplink frame resets the ADR_ACK_CNT counter
+            loRa.adrAckCnt++;  
 
             if ( loRa.adrAckCnt == loRa.protocolParameters.adrAckLimit )
             {
@@ -2105,10 +1928,13 @@ static void AssemblePacket (bool confirmed, uint8_t port, uint8_t *buffer, uint1
         loRa.lorawanMacStatus.ackRequiredFromNextUplinkMessage = DISABLED;
     }
 
-    fCtrl.fPending = RESERVED_FOR_FUTURE_USE;  //fPending bit is ignored for uplink packets
+    fCtrl.fPending = RESERVED_FOR_FUTURE_USE;  // fPending bit is ignored for uplink packets
 
-    if ( (loRa.crtMacCmdIndex == loRa.crtMacCmdNewIndex) && (bufferLength == 0) ) // there is no MAC command in the queue or there are MAC commands to respond, but the packet does not include application payload (in this case the response to MAC commands will be included inside FRM payload)
+    if ( (loRa.crtMacCmdIndex == loRa.crtMacCmdNewIndex) && (bufferLength == 0) ) 
     {
+        // There is no MAC command in the queue or there are MAC commands to respond, 
+        // but the packet does not include application payload (in this case the 
+        // response to MAC commands will be included inside FRM payload)
         fCtrl.fOptsLen = 0;         // fOpts field is absent
     }
     else if(loRa.crtMacCmdIndex == loRa.crtMacCmdNewIndex)
@@ -2157,7 +1983,8 @@ static void AssemblePacket (bool confirmed, uint8_t port, uint8_t *buffer, uint1
    
    if ( (loRa.crtMacCmdIndex != 0) || (bufferLength != 0) )
    {
-        macBuffer[bufferIndex++] = port;     // the port field is present if the frame payload field is not empty
+        // The port field is present if the frame payload field is not empty
+        macBuffer[bufferIndex++] = port;     
    }
 
    if (bufferLength != 0)
@@ -2169,36 +1996,39 @@ static void AssemblePacket (bool confirmed, uint8_t port, uint8_t *buffer, uint1
    else if ( (loRa.crtMacCmdIndex != loRa.crtMacCmdNewIndex) ) // if answer is needed to MAC commands, include the answer here because there is no app payload
    {
        // Use networkSessionKey for port 0 data
-       //Use radioBuffer as a temporary buffer. The encrypted result is found in macBuffer
+       // Use radioBuffer as a temporary buffer. The encrypted result is found in macBuffer
        IncludeMacCommandsResponse (radioBuffer, &macCmdIdx, 0 );       
        EncryptFRMPayload (radioBuffer, macCmdIdx, 0, loRa.fCntUp.value, loRa.activationParameters.networkSessionKey, bufferIndex, macBuffer, MCAST_DISABLED);
        bufferIndex = bufferIndex + macCmdIdx;
    }
 
-   AssembleEncryptionBlock (0, loRa.fCntUp.value, bufferIndex - 16, 0x49, MCAST_DISABLED);
-   memcpy (&macBuffer[0], aesBuffer, sizeof (aesBuffer));
+   AssembleEncryptionBlock(0, loRa.fCntUp.value, bufferIndex - 16, 0x49, MCAST_DISABLED);
+   memcpy(&macBuffer[0], aesBuffer, sizeof (aesBuffer));
 
-   AESCmac (loRa.activationParameters.networkSessionKey, aesBuffer, macBuffer, bufferIndex  );
+   AESCmac(loRa.activationParameters.networkSessionKey, aesBuffer, macBuffer, bufferIndex  );
 
-   memcpy (&macBuffer[bufferIndex], aesBuffer, 4);
+   memcpy(&macBuffer[bufferIndex], aesBuffer, 4);
    bufferIndex = bufferIndex + 4; // 4 is the size of MIC
 
    loRa.lastPacketLength = bufferIndex - 16;
 }
 
-static uint8_t PrepareJoinRequestFrame (void)
+static uint8_t PrepareJoinRequestFrame(void)
 {
     uint8_t bufferIndex = 0, iCtr;
     Mhdr_t mhdr;
     uint32_t mic;
 
-    memset (macBuffer, 0, sizeof(macBuffer) );  // clear the mac buffer
+    // Clear the MAC buffer
+    memset(macBuffer, 0, sizeof(macBuffer));  
 
-    mhdr.bits.mType = FRAME_TYPE_JOIN_REQ;  //prepare the mac header to include mtype as frame type join request
+    // Prepare the MAC header to include mType as frame type join request
+    mhdr.bits.mType = FRAME_TYPE_JOIN_REQ;  
     mhdr.bits.major = MAJOR_VERSION3;
     mhdr.bits.rfu = RESERVED_FOR_FUTURE_USE;
 
-    macBuffer[bufferIndex++] = mhdr.value;  // add the mac header to the buffer
+    // Add the MAC header to the buffer
+    macBuffer[bufferIndex++] = mhdr.value;  
 
     for(iCtr = 0; iCtr < 8; iCtr ++)
     {
@@ -2213,30 +2043,30 @@ static uint8_t PrepareJoinRequestFrame (void)
     }
     bufferIndex = bufferIndex + sizeof( loRa.activationParameters.deviceEui );
 
-    loRa.devNonce = Random (UINT16_MAX);
-    memcpy (&macBuffer[bufferIndex], &loRa.devNonce, sizeof (loRa.devNonce) );
-    bufferIndex = bufferIndex + sizeof( loRa.devNonce );
+    loRa.devNonce = Random(UINT16_MAX);
+    memcpy(&macBuffer[bufferIndex], &loRa.devNonce, sizeof(loRa.devNonce));
+    bufferIndex = bufferIndex + sizeof(loRa.devNonce);
 
-    mic = ComputeMic (loRa.activationParameters.applicationKey, macBuffer, bufferIndex);
+    mic = ComputeMic(loRa.activationParameters.applicationKey, macBuffer, bufferIndex);
 
-    memcpy ( &macBuffer[bufferIndex], &mic, sizeof (mic));
+    memcpy(&macBuffer[bufferIndex], &mic, sizeof(mic));
     bufferIndex = bufferIndex + sizeof(mic);
 
     return bufferIndex;
 }
 
-static void IncludeMacRxParamSetupResponse (uint8_t* macBuffer, uint8_t* pBufferIndex)
+static void IncludeMacRxParamSetupResponse(uint8_t* macBuffer, uint8_t* pBufferIndex)
 {
     uint8_t bufferIndex = *pBufferIndex;
     
     macBuffer[bufferIndex++] = RX_PARAM_SETUP_CID;
     macBuffer[bufferIndex] = rxParamSetupAns;
 
-    bufferIndex ++;
+    bufferIndex++;
     *pBufferIndex = bufferIndex;
 }
 
-static void IncludeMacRxTimingSetupResponse (uint8_t* macBuffer, uint8_t* pBufferIndex)
+static void IncludeMacRxTimingSetupResponse(uint8_t* macBuffer, uint8_t* pBufferIndex)
 {
     uint8_t bufferIndex = *pBufferIndex;
     
@@ -2245,16 +2075,15 @@ static void IncludeMacRxTimingSetupResponse (uint8_t* macBuffer, uint8_t* pBuffe
     *pBufferIndex = bufferIndex;
 }
 
-
-static void IncludeMacCommandsResponse (uint8_t* macBuffer, uint8_t* pBufferIndex, uint8_t bIncludeInFopts )
+static void IncludeMacCommandsResponse(uint8_t* macBuffer, uint8_t* pBufferIndex, uint8_t bIncludeInFopts)
 {
     uint8_t i = loRa.crtMacCmdNewIndex;
     uint8_t bufferIndex = *pBufferIndex;
     
     while(1)
     {       
-        //!port 0
-        //Check if cmd reply length exceeds maximum fopts length (15 bytes)
+        // Port not equal to 0
+        // Check if CMD reply length exceeds maximum fopts length (15 bytes)
         if((bIncludeInFopts) && (loRa.macCommands[i].receivedCid != INVALID_VALUE))
         {
             if((bufferIndex - (*pBufferIndex) + macEndDevCmdReplyLen[loRa.macCommands[i].receivedCid - 2]) > MAX_FOPTS_LEN)
@@ -2262,8 +2091,8 @@ static void IncludeMacCommandsResponse (uint8_t* macBuffer, uint8_t* pBufferInde
                 break;
             }
         }
-        //port 0 
-        //Check if commands reply exceeds maximum payload size
+        // Port equals 0 
+        // Check if commands reply exceeds maximum payload size
         else if((!bIncludeInFopts)  && (loRa.macCommands[i].receivedCid != INVALID_VALUE))
         {
             if((bufferIndex - (*pBufferIndex) + macEndDevCmdReplyLen[loRa.macCommands[i].receivedCid -2]) > maxPayloadSize[loRa.currentDataRate])
@@ -2274,7 +2103,6 @@ static void IncludeMacCommandsResponse (uint8_t* macBuffer, uint8_t* pBufferInde
         switch (loRa.macCommands[i].receivedCid)
         {
             case LINK_ADR_CID:
-            {
                 macBuffer[bufferIndex++] = LINK_ADR_CID;
                 macBuffer[bufferIndex] = 0x00;
                 if (loRa.macCommands[i].channelMaskAck == 1)
@@ -2292,11 +2120,9 @@ static void IncludeMacCommandsResponse (uint8_t* macBuffer, uint8_t* pBufferInde
                     macBuffer[bufferIndex] |= POWER_ACK;
                 }
                 bufferIndex ++;            
-            }
-            break;
+                break;
 
             case RX_PARAM_SETUP_CID:
-            {
                 macBuffer[bufferIndex++] = RX_PARAM_SETUP_CID;
                 macBuffer[bufferIndex] = 0x00;
                 if (loRa.macCommands[i].channelAck == 1)
@@ -2316,11 +2142,9 @@ static void IncludeMacCommandsResponse (uint8_t* macBuffer, uint8_t* pBufferInde
                 
                 rxParamSetupAns = macBuffer[bufferIndex];               
                 bufferIndex ++;
-            }
-            break;    
+                break;    
 
             case DEV_STATUS_CID:
-            {
                 macBuffer[bufferIndex++] = DEV_STATUS_CID;
                 macBuffer[bufferIndex++] = loRa.batteryLevel;
                 if ((RADIO_GetPacketSnr() < -32) || (RADIO_GetPacketSnr() > 31))
@@ -2331,11 +2155,9 @@ static void IncludeMacCommandsResponse (uint8_t* macBuffer, uint8_t* pBufferInde
                 {
                     macBuffer[bufferIndex++] = ((uint8_t)RADIO_GetPacketSnr() & 0x3F);  //bits 7 and 6 are RFU, bits 5-0 are the margin level response;
                 }
-            }
-            break;    
+                break;    
 
             case NEW_CHANNEL_CID:
-            {
                 macBuffer[bufferIndex++] = NEW_CHANNEL_CID;
                 macBuffer[bufferIndex] = 0x00;
                 if (loRa.macCommands[i].channelFrequencyAck == 1)
@@ -2348,30 +2170,23 @@ static void IncludeMacCommandsResponse (uint8_t* macBuffer, uint8_t* pBufferInde
                     macBuffer[bufferIndex] |= DATA_RATE_ACK;
                 }
                 bufferIndex ++;
-            }
-            break;
+                break;
             
             case LINK_CHECK_CID:
-            {
                 loRa.linkCheckMargin = 255; // reserved
                 loRa.linkCheckGwCnt = 0;
                 macBuffer[bufferIndex++] = loRa.macCommands[i].receivedCid;
-            }
-            break;                 
+                break;                 
 
             case RX_TIMING_SETUP_CID: 
-            {
                 macBuffer[bufferIndex++] = loRa.macCommands[i].receivedCid;
-            }
-            break;
-            case DUTY_CYCLE_CID:      //Fallthrough
-            {
+                break;
+    
+            case DUTY_CYCLE_CID:
                 macBuffer[bufferIndex++] = loRa.macCommands[i].receivedCid;
-            }
-            break;          
+                break;          
             
             default:
-                //CID = 0xFF
                 break;
         }
         
@@ -2385,27 +2200,17 @@ static void IncludeMacCommandsResponse (uint8_t* macBuffer, uint8_t* pBufferInde
             break;
         }
     }
-#if defined(DEBUGMACMSG)
-   // debug bct
-    {
-    uint8_t debug_buf[200];
-    strcpy(debug_buf, "### IncludeMacCommands:");
-    Parser_IntArrayToHexAscii((bufferIndex + 8 - *pBufferIndex), (macBuffer - 8 + *pBufferIndex), (debug_buf + strlen(debug_buf)));
-    Parser_TxAddReply(debug_buf, strlen(debug_buf));
-    }
-#endif // DEBUGMACMSG
     
     loRa.crtMacCmdNewIndex = i;
     *pBufferIndex = bufferIndex;
-    
 }
 
-// This function checks which value can be assigned to the current data rate.
-static bool FindSmallestDataRate (void)
+static bool FindSmallestDataRate(void)
 {
-    uint8_t  i = 0, dataRate;
+    // This function checks which value can be assigned to the current data rate.
+    uint8_t i = 0, dataRate;
     bool found = false;
-    uint8_t     loopLimit = (DR15) + 1; // prevent configuration error from causing an infinite loop
+    uint8_t loopLimit = (DR15) + 1; // Prevent configuration error from causing an infinite loop
 
     if (loRa.currentDataRate > loRa.minDataRate)
     {
@@ -2421,8 +2226,10 @@ static bool FindSmallestDataRate (void)
                     break;
                 }
             }
-            if ( (found == false) &&  (dataRate > loRa.minDataRate) ) // if no channels were found after one search, then the device will switch to the next lower data rate possible
+            if ( (found == false) &&  (dataRate > loRa.minDataRate) ) 
             {
+                // If no channels were found after one search, then the device 
+                // will switch to the next lower data rate possible
                 dataRate = dataRate - 1;
             }
         }
@@ -2436,17 +2243,19 @@ static bool FindSmallestDataRate (void)
     return found;
 }
 
-static void SetReceptionNotOkState (OpStatus_t status)
+static void SetReceptionNotOkState(OpStatus_t status)
 {
     if ( (loRa.macStatus.macState == RX2_OPEN) || ( (loRa.macStatus.macState == RX1_OPEN) && (loRa.rx2DelayExpired) ) )
     {
-        loRa.lorawanMacStatus.ackRequiredFromNextDownlinkMessage = 0; // reset the flag
+        loRa.lorawanMacStatus.ackRequiredFromNextDownlinkMessage = 0; // Reset the flag
         loRa.macStatus.macState = IDLE;
 
         if ((loRa.deviceClass == CLASS_A) && (rxPayload.RxAppData != NULL))
         {
-            loRa.lorawanMacStatus.synchronization = 0; //clear the synchronization flag, because if the user will send a packet in the callback there is no need to send an empty packet
-            rxPayload.RxAppData (NULL, 0, status);
+            // Clear the synchronization flag, because if the user will send a 
+            // packet in the callback there is no need to send an empty packet
+            loRa.lorawanMacStatus.synchronization = 0; 
+            rxPayload.RxAppData(NULL, 0, status);
         }
         loRa.macStatus.rxDone = 0;
     }
@@ -2465,26 +2274,25 @@ static void ConfigureRadioRx(uint8_t dataRate, uint32_t freq)
     RADIO_SetIQInverted(ENABLED); 
 }
 
-static void UpdateReceiveDelays (uint8_t delay)
+static void UpdateReceiveDelays(uint8_t delay)
 {
     loRa.protocolParameters.receiveDelay1 = 1000 * delay ;
+    
     if (delay == 0)
-    {
         loRa.protocolParameters.receiveDelay1 = 1000;
-    }
 
     loRa.protocolParameters.receiveDelay2 = loRa.protocolParameters.receiveDelay1 + 1000;
 }
 
 static void UpdateJoinInProgress(uint8_t state)
 {
-    // set the states and flags accordingly
+    // Set the states and flags accordingly
     loRa.macStatus.networkJoined = 0; //last join (if any) is not considered any more, a new join is requested
     loRa.lorawanMacStatus.joining = ENABLED;
     loRa.macStatus.macState = state;
 }
 
-static void PrepareSessionKeys (uint8_t* sessionKey, uint8_t* appNonce, uint8_t* networkId)
+static void PrepareSessionKeys(uint8_t* sessionKey, uint8_t* appNonce, uint8_t* networkId)
 {
     uint8_t index = 0;
 
@@ -2498,10 +2306,9 @@ static void PrepareSessionKeys (uint8_t* sessionKey, uint8_t* appNonce, uint8_t*
     index = index + JA_NET_ID_SIZE;
 
     memcpy(&sessionKey[index], &loRa.devNonce, sizeof(loRa.devNonce) );
-
 }
 
-static void ComputeSessionKeys (JoinAccept_t *joinAcceptBuffer)
+static void ComputeSessionKeys(JoinAccept_t *joinAcceptBuffer)
 {
     PrepareSessionKeys(loRa.activationParameters.applicationSessionKey, joinAcceptBuffer->members.appNonce, joinAcceptBuffer->members.networkId);
     loRa.activationParameters.applicationSessionKey[0] = 0x02; // used for Network Session Key
@@ -2512,9 +2319,10 @@ static void ComputeSessionKeys (JoinAccept_t *joinAcceptBuffer)
     AESEncodeLoRa(loRa.activationParameters.networkSessionKey, loRa.activationParameters.applicationKey);
 }
 
-//Based on the last packet received, this function checks the flags and updates the state accordingly
-static void CheckFlags (Hdr_t* hdr)
+static void CheckFlags(Hdr_t* hdr)
 {
+    // Based on the last packet received, this function checks the flags and updates the state accordingly
+    
     if (hdr->members.fCtrl.adr == ENABLED)
     {
         loRa.macStatus.adr = ENABLED;
@@ -2532,21 +2340,19 @@ static void CheckFlags (Hdr_t* hdr)
 
     if (hdr->members.mhdr.bits.mType == FRAME_TYPE_DATA_CONFIRMED_DOWN)
     {
-        loRa.lorawanMacStatus.ackRequiredFromNextUplinkMessage = ENABLED;  //next uplink packet should have the ACK bit set
+        // Next uplink packet should have the ACK bit set
+        loRa.lorawanMacStatus.ackRequiredFromNextUplinkMessage = ENABLED;  
     }
 }
 
-static uint8_t CheckMcastFlags (Hdr_t* hdr)
+static uint8_t CheckMcastFlags(Hdr_t* hdr)
 {
-
-    /*
-     * Multicast message conditions:
-     * - ACK == 0
-     * - ADRACKReq == 0
-     * - FOpt == empty => FOptLen == 0 (no mac commands in fopt)
-     * - FPort == 0 (no commands in payload)
-     * - MType == UNCNF Data downlink
-     */
+    // Multicast message conditions:
+    // - ACK == 0
+    // - ADRACKReq == 0
+    // - FOpt == empty => FOptLen == 0 (no mac commands in fopt)
+    // - FPort == 0 (no commands in payload)
+    // - MType == UNCNF Data downlink
 
     if ((0 != hdr->members.fCtrl.ack) || (0 != hdr->members.fCtrl.adrAckReq) || (FRAME_TYPE_DATA_UNCONFIRMED_DOWN != hdr->members.mhdr.bits.mType))
     {
@@ -2559,7 +2365,7 @@ static uint8_t CheckMcastFlags (Hdr_t* hdr)
     }
     else
     {
-        if ( 0 == *(((uint8_t *)hdr) + 8)) // Port vlaue in case of FOpts empty
+        if ( 0 == *(((uint8_t *)hdr) + 8)) // Port value in case of FOpts empty
         {
             return FLAG_ERROR;
         }
@@ -2573,7 +2379,7 @@ static uint8_t CheckMcastFlags (Hdr_t* hdr)
     return FLAG_OK;
 }
 
-static uint8_t CountfOptsLength (void)
+static uint8_t CountfOptsLength(void)
 {
     uint8_t i, macCommandLength=0;
 
@@ -2593,16 +2399,15 @@ static uint8_t CountfOptsLength (void)
                     break;
                 }
             }
+            
             i++;
+            
             if(i == MAX_NB_CMD_TO_PROCESS)
-            {
                 i = 0;
-            }
+            
             if(loRa.crtMacCmdIndex == i)
-            {
                 break;
-            }
-        };
+        }
     }
     return macCommandLength;
 }
@@ -2611,8 +2416,8 @@ static void AssembleEncryptionBlock (uint8_t dir, uint32_t frameCounter, uint8_t
 {
     uint8_t bufferIndex = 0;
 
-
-    memset (aesBuffer, 0, sizeof (aesBuffer)); //clear the aesBuffer
+    // Clear the aesBuffer
+    memset (aesBuffer, 0, sizeof (aesBuffer)); 
 
     aesBuffer[bufferIndex] = firstByte;
 
@@ -2622,98 +2427,90 @@ static void AssembleEncryptionBlock (uint8_t dir, uint32_t frameCounter, uint8_t
 
     if (DISABLED == multicastStatus)
     {
-        memcpy (&aesBuffer[bufferIndex], &loRa.activationParameters.deviceAddress, sizeof (loRa.activationParameters.deviceAddress));
-        bufferIndex = bufferIndex + sizeof (loRa.activationParameters.deviceAddress);
+        memcpy(&aesBuffer[bufferIndex], &loRa.activationParameters.deviceAddress, sizeof(loRa.activationParameters.deviceAddress));
+        bufferIndex = bufferIndex + sizeof(loRa.activationParameters.deviceAddress);
     }
     else
     {
-        memcpy (&aesBuffer[bufferIndex], &loRa.activationParameters.mcastDeviceAddress, sizeof (loRa.activationParameters.mcastDeviceAddress));
-        bufferIndex = bufferIndex + sizeof (loRa.activationParameters.mcastDeviceAddress);
+        memcpy(&aesBuffer[bufferIndex], &loRa.activationParameters.mcastDeviceAddress, sizeof(loRa.activationParameters.mcastDeviceAddress));
+        bufferIndex = bufferIndex + sizeof(loRa.activationParameters.mcastDeviceAddress);
     }
 
-    memcpy (&aesBuffer[bufferIndex], &frameCounter, sizeof (frameCounter));
-    bufferIndex = bufferIndex + sizeof (frameCounter) ;
+    memcpy(&aesBuffer[bufferIndex], &frameCounter, sizeof(frameCounter));
+    bufferIndex = bufferIndex + sizeof(frameCounter) ;
 
-    bufferIndex ++;   // 1 byte of 0x00 (done with memset at the beginning of the function)
+    bufferIndex++;   // 1 byte of 0x00 (done with memset at the beginning of the function)
 
     aesBuffer[bufferIndex] = blockId;
 }
 
-static uint32_t ExtractMic (uint8_t *buffer, uint8_t bufferLength)
+static uint32_t ExtractMic(uint8_t *buffer, uint8_t bufferLength)
 {
      uint32_t mic = 0;
-     memcpy (&mic, &buffer[bufferLength - 4], sizeof (mic));
+
+     memcpy(&mic, &buffer[bufferLength - 4], sizeof(mic));
+
      return mic;
 }
 
-static uint32_t ComputeMic ( uint8_t *key, uint8_t* buffer, uint8_t bufferLength)  // micType is 0 for join request and 1 for data packet
+static uint32_t ComputeMic(uint8_t *key, uint8_t* buffer, uint8_t bufferLength) 
 {
     uint32_t mic = 0;
 
-    AESCmac(key, aesBuffer, buffer, bufferLength); //if micType is 0, bufferLength the same, but for data messages bufferLength increases with 16 because a block is added
-
+    AESCmac(key, aesBuffer, buffer, bufferLength); 
     memcpy(&mic, aesBuffer, sizeof( mic ));
 
     return mic;
 }
 
-static void EncryptFRMPayload (uint8_t* buffer, uint8_t bufferLength, uint8_t dir, uint32_t frameCounter, uint8_t* key, uint8_t macBufferIndex, uint8_t* bufferToBeEncrypted, uint8_t multicastStatus)
+static void EncryptFRMPayload(uint8_t* buffer, uint8_t bufferLength, uint8_t dir, uint32_t frameCounter, uint8_t* key, uint8_t macBufferIndex, uint8_t* bufferToBeEncrypted, uint8_t multicastStatus)
 {
     uint8_t k = 0, i = 0, j = 0;
 
     k = bufferLength / AES_BLOCKSIZE;
+
     for (i = 1; i <= k; i++)
     {
-        AssembleEncryptionBlock (dir, frameCounter, i, 0x01, multicastStatus);
+        AssembleEncryptionBlock(dir, frameCounter, i, 0x01, multicastStatus);
         AESEncodeLoRa(aesBuffer, key);
 
         for (j = 0; j < AES_BLOCKSIZE; j++)
-        {
             bufferToBeEncrypted[macBufferIndex++] = aesBuffer[j] ^ buffer[AES_BLOCKSIZE*(i-1) + j];
-        }
     }
 
-    if ( (bufferLength % AES_BLOCKSIZE) != 0 )
+    if ((bufferLength % AES_BLOCKSIZE) != 0)
     {
-        AssembleEncryptionBlock (dir, frameCounter, i, 0x01, multicastStatus);
-        AESEncodeLoRa (aesBuffer, key);
+        AssembleEncryptionBlock(dir, frameCounter, i, 0x01, multicastStatus);
+        AESEncodeLoRa(aesBuffer, key);
 
         for (j = 0; j < (bufferLength % AES_BLOCKSIZE); j++)
-        {
             bufferToBeEncrypted[macBufferIndex++] = aesBuffer[j] ^ buffer[(AES_BLOCKSIZE*k) + j];
-        }
     }
 }
 
-void LORAWAN_Mainloop (void)
+void LORAWAN_Mainloop(void)
 {
     SwTimersExecute();
 
-    //Execute radio interrupts
+    // Execute radio interrupts
     localDioStatus = INTERRUPT_GetDioStatus();
 
     if ((localDioStatus & DIO0) != 0)
-    {
         RADIO_DIO0();
-    }
+
     if ((localDioStatus & DIO1) != 0)
-    {
         RADIO_DIO1();
-    }
+
     if ((localDioStatus & DIO2) != 0)
-    {
         RADIO_DIO2();
-    }
+
     if ((localDioStatus & DIO3) != 0)
-    {
         RADIO_DIO3();
-    }
+
     if ((localDioStatus & DIO4) != 0)
-    {
         RADIO_DIO4();
-    }
+
     if ((localDioStatus & DIO5) != 0)
-    {
         RADIO_DIO5();
-    }
+
 }
