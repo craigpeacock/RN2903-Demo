@@ -47,7 +47,6 @@
 extern "C" {
 #endif
 
-
 #define DIO0        0x01
 #define DIO1        0x02
 #define DIO2        0x04
@@ -57,37 +56,7 @@ extern "C" {
 
 volatile uint8_t dioStatus;
 
-/**
- * @Summary
-    Returns the status of DIO's.
- * @Description
-    This function returns a bitfield representing the status of the DIO's used 
-    between the radio and microcontroller.
-    This also resets the bitfield value to 0. While this happens interrupts are disabled.
-    bit x corresponds to DIOx in the bitfield.
- * @Preconditions
- * @Param
-    None
- * @Returns
-    DIO status.
- * @Example
-*/
 uint8_t INTERRUPT_GetDioStatus(void);
-
-/**
- * @Summary
-    Returns the status of DIO's.
- * @Description
-    This function returns a bitfield representing the status of the DIO's used 
-    between the radio and microcontroller.
-    bit x corresponds to DIOx in the bitfield.
- * @Preconditions
- * @Param
-    None
- * @Returns
-    DIO status.
- * @Example
-*/
 uint8_t INTERRUPT_PeekDioStatus(void);
 
 void DIO0_ISR_Lora(void);
@@ -97,13 +66,8 @@ void DIO3_ISR_Lora(void);
 void DIO4_ISR_Lora(void);
 void DIO5_ISR_Lora(void);
 
-
 #ifdef	__cplusplus
 }
 #endif
 
 #endif	/* INTERRUPT_MANAGER_LORA_ADDONS_H */
-
-/**
- End of File
-*/

@@ -37,16 +37,9 @@
 #include "sw_timer.h"
 #include "lorawan_na.h"
 
-#if defined(DEBUGLINKADR) || defined(DEBUGRX2TICKS)
-// debug bct
-#include "../../parser/parser.h"
-#include "../../parser/parser_tsp.h"
-#include "../../parser/parser_utils.h"
-#endif // defined(DEBUGLINKADR) || defined(DEBUGRX2TICKS)
 /****************************** VARIABLES *************************************/
 
 const uint8_t rxWindowSize[] = {5, 5, 7, 12, 22, 0, 0, 0, 5, 5, 7, 12, 22, 42};
-
 
 #ifdef AU915
     // Max Payload Size 
@@ -67,14 +60,12 @@ const uint8_t rxWindowSize[] = {5, 5, 7, 12, 22, 0, 0, 0, 5, 5, 7, 12, 22, 42};
     static const uint8_t spreadingFactor[] = {10, 9, 8, 7, 8, 0, 0, 0, 12, 11, 10, 9, 8, 7};
 #endif
 
-
-
 // Channels by ism band
 ChannelParams_t Channels[MAX_US_CHANNELS];
 
 static const int8_t rxWindowOffset[] = {12, 6, 1, -2, -4, 0, 0, 0, 12, 6, 1, -2, -4, -4};
 
-// Tx power possibilities by ism band
+// TX power possibilities by ism band
  static const int8_t txPower915[] = {30, 28, 26, 24, 22, 20, 18, 16, 14, 12, 10};
    
 typedef enum
@@ -163,13 +154,13 @@ void LORAWAN_Init(RxAppDataCb_t RxPayload, RxJoinResponseCb_t RxJoinResponse) //
     // Allocate software timers and their callbacks
     if (loRa.macInitialized == DISABLED)
     {
-        CreateAllSoftwareTimers ();
-        SetCallbackSoftwareTimers ();
+        CreateAllSoftwareTimers();
+        SetCallbackSoftwareTimers();
         loRa.macInitialized = ENABLED;
     }
     else
     {
-        StopAllSoftwareTimers ();
+        StopAllSoftwareTimers();
     }
 
     rxPayload.RxAppData = RxPayload;
@@ -177,16 +168,16 @@ void LORAWAN_Init(RxAppDataCb_t RxPayload, RxJoinResponseCb_t RxJoinResponse) //
 
     RADIO_Init(&radioBuffer[16], NA915_CALIBRATION_FREQ);
 
-    srand (RADIO_ReadRandom ());  // for the loRa random function we need a seed that is obtained from the radio
+    srand(RADIO_ReadRandom());  // for the loRa random function we need a seed that is obtained from the radio
 
-    LORAWAN_Reset ();
+    LORAWAN_Reset();
 }
 
- void LORAWAN_Reset (void)
+ void LORAWAN_Reset(void)
 {
     if (loRa.macInitialized == ENABLED)
     {
-        StopAllSoftwareTimers ();
+        StopAllSoftwareTimers();
     }
 
     loRa.syncWord   = 0x34;
@@ -226,7 +217,7 @@ void LORAWAN_Init(RxAppDataCb_t RxPayload, RxJoinResponseCb_t RxJoinResponse) //
     // initialize default channels
     RADIO_Init(&radioBuffer[16], NA915_CALIBRATION_FREQ);
 	
-    InitDefault915Channels ();
+    InitDefault915Channels();
   
     loRa.txPower = TXPOWER_INDEX_20dBm;   // default setting LoRaWAN v1.0.1
 	
@@ -236,7 +227,7 @@ void LORAWAN_Init(RxAppDataCb_t RxPayload, RxJoinResponseCb_t RxJoinResponse) //
 
     loRa.currentDataRate    = DR0;
 
-    UpdateMinMaxChDataRate ();
+    UpdateMinMaxChDataRate();
 
     //keys will be filled with 0
     loRa.macKeys.value      = 0;  //no keys are set
@@ -255,76 +246,76 @@ void LORAWAN_Init(RxAppDataCb_t RxPayload, RxJoinResponseCb_t RxJoinResponse) //
     
     loRa.rxDnFrame  = false;
 
-    LORAWAN_LinkCheckConfigure (DISABLED); // disable the link check mechanism
+    LORAWAN_LinkCheckConfigure(DISABLED); // disable the link check mechanism
 
-    RADIO_SetPABoost (1);
+    RADIO_SetPABoost(1);
 }
 
-LorawanError_t LORAWAN_SetReceiveWindow2Parameters (uint32_t frequency, uint8_t dataRate)
+LorawanError_t LORAWAN_SetReceiveWindow2Parameters(uint32_t frequency, uint8_t dataRate)
 {
     LorawanError_t result   = OK;
 
-    if ( (ValidateFrequency (frequency) == OK) && (ValidateDataRateReception (dataRate) == OK) )
+    if ( (ValidateFrequency(frequency) == OK) && (ValidateDataRateReception(dataRate) == OK) )
     {
-        UpdateReceiveWindow2Parameters (frequency, dataRate);
+        UpdateReceiveWindow2Parameters(frequency, dataRate);
     }
     else
     {
-        result  = INVALID_PARAMETER;
+        result = INVALID_PARAMETER;
     }
     return result;
 }
 
-uint32_t LORAWAN_GetFrequency (uint8_t channelId)
+uint32_t LORAWAN_GetFrequency(uint8_t channelId)
 {
     uint32_t result = 0;
 
     if (channelId < MAX_US_CHANNELS_BANDWIDTH_125)
     {
-        result = GenerateUSFrequency1 (channelId);
+        result = GenerateUSFrequency1(channelId);
     }
     else if ( (channelId < loRa.maxChannels) && (channelId >= MAX_US_CHANNELS_BANDWIDTH_125) )
     {
-        result = GenerateUSFrequency2 (channelId);
+        result = GenerateUSFrequency2(channelId);
     }
 
     return result;
 }
 
-LorawanError_t LORAWAN_SetDataRange (uint8_t channelId, uint8_t dataRangeNew)
+LorawanError_t LORAWAN_SetDataRange(uint8_t channelId, uint8_t dataRangeNew)
 {
     LorawanError_t result = OK;
 
-    if (ValidateDataRange (channelId, dataRangeNew) != OK)
+    if (ValidateDataRange(channelId, dataRangeNew) != OK)
     {
         result = INVALID_PARAMETER;
     }
     else
     {
-       UpdateDataRange (channelId, dataRangeNew);
+       UpdateDataRange(channelId, dataRangeNew);
     }
 
     return result;
 }
 
-uint8_t LORAWAN_GetDataRange (uint8_t channelId)
+uint8_t LORAWAN_GetDataRange(uint8_t channelId)
 {
     uint8_t result = 0xFF;
 
-    if (ValidateChannelId (channelId) == OK)
+    if (ValidateChannelId(channelId) == OK)
     {
         result = Channels[channelId].dataRange.value;
     }
     return result;
  }
  
-LorawanError_t LORAWAN_SetChannelIdStatus (uint8_t channelId, bool statusNew)
+LorawanError_t LORAWAN_SetChannelIdStatus(uint8_t channelId, bool statusNew)
 {
     LorawanError_t result = OK;
 
-    if (ValidateChannelId (channelId) == OK) 
+    if (ValidateChannelId(channelId) == OK) 
     {
-        UpdateChannelIdStatus (channelId, statusNew);
+        UpdateChannelIdStatus(channelId, statusNew);
     }
     else
     {
@@ -334,18 +325,18 @@ LorawanError_t LORAWAN_SetChannelIdStatus (uint8_t channelId, bool statusNew)
     return result;
 }
 
-bool LORAWAN_GetChannelIdStatus (uint8_t channelId)
+bool LORAWAN_GetChannelIdStatus(uint8_t channelId)
 {
     bool result = DISABLED;
 
-    if (ValidateChannelId (channelId) == OK)
+    if (ValidateChannelId(channelId) == OK)
     {
         result = Channels[channelId].status;
     }
     return result;
 }
 
-void LORAWAN_TxDone (uint16_t timeOnAir)
+void LORAWAN_TxDone(uint16_t timeOnAir)
 {
     if (loRa.macStatus.macPause == DISABLED)
     {
@@ -374,18 +365,6 @@ void LORAWAN_TxDone (uint16_t timeOnAir)
 
             SwTimerStart(loRa.receiveWindow1TimerId);
             SwTimerStart(loRa.receiveWindow2TimerId);
-#if defined(DEBUGRX2TICKS)
-   // debug bct
-    {
-    uint8_t debug_buf[25];
-    strcpy(debug_buf, "### LORAWAN_TxDone:");
-//    uint32_t Rx2Ticks = MS_TO_TICKS_SHORT(loRa.protocolParameters.receiveDelay2 + rxWindowOffset[loRa.receiveWindow2Parameters.dataRate]);
-//    Parser_IntArrayToHexAscii(sizeof(Rx2Ticks), &Rx2Ticks, (debug_buf + strlen(debug_buf)));
-    uint32_t rx2remaining= SwTimerReadValue(loRa.receiveWindow2TimerId);
-    Parser_IntArrayToHexAscii(4, (uint8_t*)&rx2remaining, (debug_buf + strlen(debug_buf)));
-    Parser_TxAddReply(debug_buf, strlen(debug_buf));
-    }
-#endif // DEBUGRX2TICKS
         }
 
         if (CLASS_C == loRa.deviceClass)
@@ -398,12 +377,12 @@ void LORAWAN_TxDone (uint16_t timeOnAir)
     {
         if ((RADIO_GetStatus() & RADIO_FLAG_TIMEOUT) != 0)
         {
-            // Radio transmission ended by watchdog timer
+            //Radio transmission ended by watchdog timer
             rxPayload.RxAppData( NULL, 0, RADIO_NOT_OK );
         }
         else
         {
-            //Standalone radio transmissions finished OK, using the same callback as in LoRaWAN tx
+            //Standalone radio transmissions finished OK, using the same callback as in LoRaWAN TX
             if ( rxPayload.RxAppData != NULL )
             {
                 rxPayload.RxAppData( NULL, 0, RADIO_OK );
@@ -412,24 +391,24 @@ void LORAWAN_TxDone (uint16_t timeOnAir)
     }
 }
 
-// this function is called by the radio when the first or the second receive window expired without receiving any message (either for join accept or for message)
+//This function is called by the radio when the first or the second receive window expired without receiving any message (either for join accept or for message)
 void LORAWAN_RxTimeout(void)
 {
     if (loRa.macStatus.macPause == 0)
     {
-        // if the timeout is after the first receive window, we have to wait for the second receive window....
+        //If the timeout is after the first receive window, we have to wait for the second receive window....
         if ( loRa.macStatus.macState == RX1_OPEN )
         {
             loRa.macStatus.macState = BETWEEN_RX1_RX2;
         }
         else
         {
-        // if last message sent was a join request, the join was not accepted after the second window expired
+        //If last message sent was a join request, the join was not accepted after the second window expired
             if (loRa.lorawanMacStatus.joining == 1)
             {
                 SetJoinFailState();
             }
-            // if last message sent was a data message, and there was no reply...
+            //If last message sent was a data message, and there was no reply...
             else if (loRa.macStatus.networkJoined == 1)
             {
                 Retransmissions ();
@@ -443,7 +422,7 @@ void LORAWAN_RxTimeout(void)
     }
     else
     {
-        //Standalone radio reception NOK, using the same callback as in LoRaWAN rx
+        //Standalone radio reception NOK, using the same callback as in LoRaWAN RX
         if (rxPayload.RxAppData != NULL)
         {
             rxPayload.RxAppData(NULL, 0, RADIO_NOT_OK);
@@ -451,7 +430,7 @@ void LORAWAN_RxTimeout(void)
     }
 }
 
-LorawanError_t ValidateDataRate (uint8_t dataRate)
+LorawanError_t ValidateDataRate(uint8_t dataRate)
 {
     LorawanError_t result = OK;
 
@@ -463,7 +442,7 @@ LorawanError_t ValidateDataRate (uint8_t dataRate)
     return result;
 }
 
-LorawanError_t ValidateTxPower (uint8_t txPowerNew)
+LorawanError_t ValidateTxPower(uint8_t txPowerNew)
 {
     LorawanError_t result = OK;
 
@@ -475,7 +454,7 @@ LorawanError_t ValidateTxPower (uint8_t txPowerNew)
     return result;
 }
 
-uint8_t* ExecuteDutyCycle (uint8_t *ptr)
+uint8_t* ExecuteDutyCycle(uint8_t *ptr)
 {
     uint8_t maxDCycle;
 
@@ -489,7 +468,7 @@ uint8_t* ExecuteDutyCycle (uint8_t *ptr)
     return ptr;
 }
 
-uint8_t* ExecuteLinkAdr (uint8_t *ptr, uint8_t *commandsLen)
+uint8_t* ExecuteLinkAdr(uint8_t *ptr, uint8_t *commandsLen)
 {
     uint8_t txPower, dataRate, nextCommand;
     uint16_t channelMask, auxChannelMask;
@@ -501,35 +480,24 @@ uint8_t* ExecuteLinkAdr (uint8_t *ptr, uint8_t *commandsLen)
     bool channelAck = true, powerAck = false, drAck = false;
 
     ptr--;      // backup to include the MAC CID
-
-#if defined(DEBUGLINKADR)
-   // debug bct
-    {
-    uint8_t debug_buf[100];
-    strcpy(debug_buf, "### ExecuteLinkAdr::ptr=");
-    Parser_IntArrayToHexAscii((commandsLen - ptr), ptr, (debug_buf + strlen(debug_buf)));
-    Parser_TxAddReply(debug_buf, strlen(debug_buf));
-    }
-#endif // DEBUGLINKADR
         
     while(ptr < commandsLen)
     {
-        // if the buffer length is longer than a LINK_ADR_CID command and 
+        // If the buffer length is longer than a LINK_ADR_CID command and 
         // the next command in the buffer is a LINK_ADR_CID command
         // this is a LinkADRReq block
         if(((ptr + LINKADR_CMD_LEN) < commandsLen) && (LINK_ADR_CID == *(ptr+LINKADR_CMD_LEN)))
         {
-            block++;        // count the number of LinkADRReq commands in the block
+            block++;        // Count the number of LinkADRReq commands in the block
             redundancy = (Redundancy_t*) (ptr+LINKADR_REDUNDANCY_OFFSET);
             if( ValidateChannelMaskCntl(redundancy->chMaskCntl) != OK)
                 channelAck = false;
             ptr = ptr + LINKADR_CMD_LEN;
         }
 
-        // else last command in the block (or) single link adr command
+        // Else last command in the block (or) single link ADR command
         else
         {
-
             ptr++;  // skip past the MAC CID
             txPower = *(ptr) & LAST_NIBBLE;
             dataRate = ( *(ptr) & FIRST_NIBBLE ) >> SHIFT4;
@@ -553,7 +521,6 @@ uint8_t* ExecuteLinkAdr (uint8_t *ptr, uint8_t *commandsLen)
                             case 1:
                             case 2:
                             case 3:
-                                {
                                     startingIndex = redundancy->chMaskCntl << SHIFT4;
                                     endingIndex = startingIndex + 16;
                                     for (i = startingIndex; i < endingIndex; i++)
@@ -568,24 +535,21 @@ uint8_t* ExecuteLinkAdr (uint8_t *ptr, uint8_t *commandsLen)
                                         }
                                         auxChannelMask = auxChannelMask >> SHIFT1;
                                     }
-                                } break;
+                                    break;
 
                             case 4:
-                                {
                                     auxMaxDataRate = maxDR;
-                                } break;
+                                    break;
 
                             case 7:
-                                {
                                     auxMinDataRate = maxDR;
                                     auxMaxDataRate = maxDR;
                                     if(channelMask == 0)    //Cannot disable all channels
                                         channelAck  = false;
-                                } break;
+                                    break;
 
                             case 6:
-                                {
-                                    // verify channels 0 to 63 for min/max datarate
+                                    // Verify channels 0 to 63 for min/max datarate
                                     for (i = 0; i < 64; i++)
                                     {
                                         if (Channels[i].dataRange.min < auxMinDataRate) 
@@ -601,8 +565,9 @@ uint8_t* ExecuteLinkAdr (uint8_t *ptr, uint8_t *commandsLen)
                                     {
                                         auxMaxDataRate = maxDR;
                                     }
-                                } break;
+                                    break;
                         }
+                        
                         for (i = 0; i < 71; i++)
                         {
                             //Check the max and min data rate for all already enabled channels
@@ -624,28 +589,26 @@ uint8_t* ExecuteLinkAdr (uint8_t *ptr, uint8_t *commandsLen)
                 if ( (ValidateDataRate (dataRate) == OK) &&  (dataRate >= auxMinDataRate) && (dataRate <= auxMaxDataRate) )
                 {
                     drAck   = true;
-
                 }
 
-                // verify the requested txPower index is within the txPower915 array
+                // Verify the requested txPower index is within the txPower915 array
                 if (txPower <= TXPOWER_INDEX_10dBm)
                 {
                     powerAck = true;
                     if(txPower < TXPOWER_INDEX_20dBm)
                     {
-                        // limit max power to 20dBm
+                        // Limit max power to 20dBm
                         txPowerNew = TXPOWER_INDEX_20dBm;
                     }
                     else
                     {
                         txPowerNew = txPower;
                     }
-
                 }
 
                 if (powerAck && drAck && channelAck)
                 {
-                    // at this point all of the linked ADR request have been verified
+                    // At this point all of the linked ADR request have been verified
                     // go back through the list and enable the channels, in order
                     uint8_t* replayPtr = ptr - (LINKADR_CMD_LEN * block);
                     while( replayPtr < ptr)
@@ -658,17 +621,15 @@ uint8_t* ExecuteLinkAdr (uint8_t *ptr, uint8_t *commandsLen)
 
                         redundancy = (Redundancy_t*)(replayPtr++);
                         EnableChannels (channelMask, redundancy->chMaskCntl);
-             
                     }
                     
                     loRa.macStatus.channelsModified = ENABLED;
 
                     UpdateTxPower (txPowerNew);
-                    loRa.macStatus.txPowerModified = ENABLED; // the current tx power was modified, so the user is informed about the change via this flag
+                    loRa.macStatus.txPowerModified = ENABLED; // The current TX power was modified, so the user is informed about the change via this flag
                     
                     UpdateCurrentDataRate (dataRate);
                 }
-
 
                 if (redundancy->nbRep == 0)
                 {
@@ -682,7 +643,7 @@ uint8_t* ExecuteLinkAdr (uint8_t *ptr, uint8_t *commandsLen)
             }
             else
             {
-                //defaults for drAck and powerAck are set to false
+                //Defaults for drAck and powerAck are set to false
                 channelAck = false;
             }	
 
@@ -719,12 +680,12 @@ uint8_t* ExecuteLinkAdr (uint8_t *ptr, uint8_t *commandsLen)
     return ptr;
 }
 
-uint8_t* ExecuteDevStatus (uint8_t *ptr)
+uint8_t* ExecuteDevStatus(uint8_t *ptr)
 {
     return ptr;
 }
 
-uint8_t* ExecuteNewChannel (uint8_t *ptr)
+uint8_t* ExecuteNewChannel(uint8_t *ptr)
 {
     uint8_t channelIndex;
     DataRange_t drRange;
@@ -740,12 +701,12 @@ uint8_t* ExecuteNewChannel (uint8_t *ptr)
 
     if (isDefaultChannel(channelIndex) != OK)
     {
-        if ( (frequency == GenerateUSFrequency1 (channelIndex)) || (frequency == GenerateUSFrequency2 (channelIndex)) || (frequency == 0) )
+        if ( (frequency == GenerateUSFrequency1(channelIndex)) || (frequency == GenerateUSFrequency2(channelIndex)) || (frequency == 0) )
         {
             loRa.macCommands[loRa.crtMacCmdIndex].channelFrequencyAck = 1;
         }
 
-        if (ValidateDataRange (channelIndex, drRange.value) == OK)
+        if (ValidateDataRange(channelIndex, drRange.value) == OK)
         {
             loRa.macCommands[loRa.crtMacCmdIndex].dataRateRangeAck = 1;
         }
@@ -753,25 +714,26 @@ uint8_t* ExecuteNewChannel (uint8_t *ptr)
 
     if ( (loRa.macCommands[loRa.crtMacCmdIndex].channelFrequencyAck == 1) && (loRa.macCommands[loRa.crtMacCmdIndex].dataRateRangeAck == 1) )
     {
-        // a frequency value of 0 disables the channel
+        // A frequency value of 0 disables the channel
         if (frequency == 0)
         {
             LORAWAN_SetChannelIdStatus (channelIndex, DISABLED);
         }
         else
-        { // change the data rate of the channel
+        { 
+            // Change the data rate of the channel
             LORAWAN_SetDataRange (channelIndex, drRange.value);
         }
     }
     return ptr;
 }
 
-uint8_t* ExecuteRxParamSetupReq (uint8_t *ptr)
+uint8_t* ExecuteRxParamSetupReq(uint8_t *ptr)
 {
     DlSettings_t dlSettings;
     uint32_t frequency = 0;
 
-    //In the status field (response) we have to include the following: channle ACK, RX2 data rate ACK, RX1DoffsetACK
+    //In the status field (response) we have to include the following: channel ACK, RX2 data rate ACK, RX1DoffsetACK
 
     dlSettings.value = *(ptr++);
 
@@ -805,7 +767,7 @@ uint8_t* ExecuteRxParamSetupReq (uint8_t *ptr)
     return ptr;
 }
 
-LorawanError_t SearchAvailableChannel (uint8_t maxChannels, bool transmissionType, uint8_t* channelIndex)
+LorawanError_t SearchAvailableChannel(uint8_t maxChannels, bool transmissionType, uint8_t* channelIndex)
 {
     uint8_t randomNumberCopy, randomNumber, i;
     LorawanError_t result = OK;
@@ -815,7 +777,7 @@ LorawanError_t SearchAvailableChannel (uint8_t maxChannels, bool transmissionTyp
     {
         startingIndex = MAX_US_CHANNELS_BANDWIDTH_125;
     }
-    randomNumber = Random (maxChannels) + 1; //this is a guard so that randomNumber is not 0 and the search will happen
+    randomNumber = Random(maxChannels) + 1; //this is a guard so that randomNumber is not 0 and the search will happen
     randomNumberCopy = randomNumber;
 
     while (randomNumber)
@@ -828,8 +790,8 @@ LorawanError_t SearchAvailableChannel (uint8_t maxChannels, bool transmissionTyp
             }
         }
 
-        // if after one searching in all the vector no valid channel was found, exit the loop and return an error
-        if ( randomNumber == randomNumberCopy )
+        // If after one searching in all the vector no valid channel was found, exit the loop and return an error
+        if (randomNumber == randomNumberCopy)
         {
             result = NO_CHANNELS_FOUND;
             break;
@@ -847,7 +809,7 @@ LorawanError_t SearchAvailableChannel (uint8_t maxChannels, bool transmissionTyp
     return result;
 }
 
-void UpdateCfList (uint8_t bufferLength, JoinAccept_t *joinAccept)  
+void UpdateCfList(uint8_t bufferLength, JoinAccept_t *joinAccept)  
 {
 
 }
@@ -862,12 +824,12 @@ void ConfigureRadio(uint8_t dataRate, uint32_t freq)
     RADIO_SetLoRaSyncWord(loRa.syncWord);     
 }
 
-uint32_t GetRx1Freq (void)
+uint32_t GetRx1Freq(void)
 {
     uint8_t channelIndex;
     
-    channelIndex = loRa.lastUsedChannelIndex % 8; //the RX1 receive channel is a function of the upstream channel used to initiate the data exchange
-    loRa.receiveWindow1Parameters.frequency = GenerateUSFrequencyReception (channelIndex); // generates a frequency for the US downstream starting at 923.3 MHz and incrementing linearly by 600 kHz to 927.5 MHz
+    channelIndex = loRa.lastUsedChannelIndex % 8; // The RX1 receive channel is a function of the upstream channel used to initiate the data exchange
+    loRa.receiveWindow1Parameters.frequency = GenerateUSFrequencyReception (channelIndex); // Generates a frequency for the US downstream starting at 923.3 MHz and incrementing linearly by 600 kHz to 927.5 MHz
     
     return loRa.receiveWindow1Parameters.frequency;
 }
@@ -881,7 +843,7 @@ void UpdateDLSettings(uint8_t dlRx2Dr, uint8_t dlRx1DrOffset)
 
     if (dlRx1DrOffset <= 3)
     {
-        // update the offset between the uplink data rate and the downlink data rate used to communicate with the end device on the first reception slot
+        // Update the offset between the uplink data rate and the downlink data rate used to communicate with the end device on the first reception slot
         loRa.offset = dlRx1DrOffset;  
     } 
 }
@@ -891,7 +853,7 @@ void StartReTxTimer(void)
     
 }
 
-LorawanError_t SelectChannelForTransmission (bool transmissionType)  // transmission type is 0 means join request, transmission type is 1 means data message mode
+LorawanError_t SelectChannelForTransmission(bool transmissionType)  // Transmission type is 0 means join request, transmission type is 1 means data message mode
 {
     LorawanError_t result = OK;
     uint8_t channelIndex;
@@ -914,7 +876,7 @@ LorawanError_t SelectChannelForTransmission (bool transmissionType)  // transmis
     {
         if (loRa.lorawanMacStatus.alternativeChannelUs == 0)
         {
-            loRa.currentDataRate = DR0; // DR0 is always used for join on 125 khz bandwidth
+            loRa.currentDataRate = DR0; // DR0 is always used for join on 125 kHz bandwidth
             result = SearchAvailableChannel (MAX_US_CHANNELS_BANDWIDTH_125, transmissionType, &channelIndex);
             RADIO_SetSpreadingFactor (SF_10); // DR0 is SF10
             loRa.receiveWindow1Parameters.dataRate = DR0 + 10 - loRa.offset;
@@ -922,7 +884,7 @@ LorawanError_t SelectChannelForTransmission (bool transmissionType)  // transmis
         }
         else
         {
-            loRa.currentDataRate = maxDR; // this is a guard for join request, as the 500 kHz channels are only on maxDR
+            loRa.currentDataRate = maxDR; // This is a guard for join request, as the 500 kHz channels are only on maxDR
             result = SearchAvailableChannel (MAX_US_CHANNELS_BANDWIDTH_500, transmissionType, &channelIndex);
             RADIO_SetSpreadingFactor (SF_8); // JoinReq message - alternatively on a random 125 kHz channel amongst the 64 channels defined using  DR0 and a random 500 kHz channel amongst the 8 channels defined using maxDR.
             loRa.receiveWindow1Parameters.dataRate = maxDR + 10 - loRa.offset;
@@ -941,26 +903,26 @@ LorawanError_t SelectChannelForTransmission (bool transmissionType)  // transmis
     {
         if (channelIndex < MAX_US_CHANNELS_BANDWIDTH_125)
         {
-            frequency = GenerateUSFrequency1 (channelIndex);
+            frequency = GenerateUSFrequency1(channelIndex);
             RADIO_SetBandwidth (BW_125KHZ);
             RADIO_SetOutputPower (txPower915[loRa.txPower]);
         }
         else
         {
-            frequency = GenerateUSFrequency2 (channelIndex);
+            frequency = GenerateUSFrequency2(channelIndex);
             RADIO_SetBandwidth (BW_500KHZ);
 
-            //devices, when transmitting with 500 kHz BW may use a maximum of 26 dBm
+            // Devices, when transmitting with 500 kHz BW may use a maximum of 26 dBm
             if (txPower915[loRa.txPower] <= 26)
             {
-                RADIO_SetOutputPower (txPower915[loRa.txPower]);
+                RADIO_SetOutputPower(txPower915[loRa.txPower]);
             }
             else
             {
-                RADIO_SetOutputPower (26);
+                RADIO_SetOutputPower(26);
             }
         }
-        RADIO_SetChannelFrequency (frequency);
+        RADIO_SetChannelFrequency(frequency);
         RADIO_SetCRC(ENABLED);
         RADIO_SetIQInverted(DISABLED);
         loRa.lastUsedChannelIndex = channelIndex;
@@ -969,7 +931,7 @@ LorawanError_t SelectChannelForTransmission (bool transmissionType)  // transmis
     return result;
 }
 
-static void CreateAllSoftwareTimers (void)
+static void CreateAllSoftwareTimers(void)
 {
     loRa.joinAccept1TimerId = SwTimerCreate();
     loRa.joinAccept2TimerId = SwTimerCreate();
@@ -983,7 +945,7 @@ static void CreateAllSoftwareTimers (void)
     loRa.transmissionErrorTimerId = SwTimerCreate();
 }
 
-static void SetCallbackSoftwareTimers (void)
+static void SetCallbackSoftwareTimers(void)
 {
     SwTimerSetCallback(loRa.joinAccept1TimerId, LORAWAN_ReceiveWindow1Callback, 0);
     SwTimerSetCallback(loRa.joinAccept2TimerId, LORAWAN_ReceiveWindow2Callback, 0);
@@ -997,7 +959,7 @@ static void SetCallbackSoftwareTimers (void)
     SwTimerSetCallback(loRa.transmissionErrorTimerId, TransmissionErrorCallback, 0);
 }
 
-static void StopAllSoftwareTimers (void)
+static void StopAllSoftwareTimers(void)
 {
     SwTimerStop(loRa.joinAccept1TimerId);
     SwTimerStop(loRa.joinAccept2TimerId);
@@ -1011,42 +973,43 @@ static void StopAllSoftwareTimers (void)
     SwTimerStop(loRa.transmissionErrorTimerId);
 }
 
-static void InitDefault915Channels (void)
+static void InitDefault915Channels(void)
 {
     memset (Channels, 0, sizeof(Channels) );
     memcpy (Channels, DefaultChannels915, sizeof(DefaultChannels915) );
     loRa.maxChannels = MAX_US_CHANNELS;
 }
 
-static void UpdateDataRange (uint8_t channelId, uint8_t dataRangeNew)
+static void UpdateDataRange(uint8_t channelId, uint8_t dataRangeNew)
 {
     Channels[channelId].dataRange.value = dataRangeNew;
     
-    // after updating the status of a channel we need to check if the minimum dataRange has changed or not.
-    UpdateMinMaxChDataRate ();
+    // After updating the status of a channel we need to check if the minimum dataRange has changed or not.
+    UpdateMinMaxChDataRate();
     // If the min/max data rate is changed and the current data rate is outside spec, then update the current data rate accordingly
-    UpdateCurrentDataRateAfterDataRangeChanges ();
+    UpdateCurrentDataRateAfterDataRangeChanges();
 }
 
-static void UpdateChannelIdStatus (uint8_t channelId, bool statusNew)
+static void UpdateChannelIdStatus(uint8_t channelId, bool statusNew)
 {
     Channels[channelId].status = statusNew;
 
-    // after updating the status of a channel we need to check if the minimum dataRange has changed or not.
-    UpdateMinMaxChDataRate ();
+    // After updating the status of a channel we need to check if the minimum dataRange has changed or not.
+    UpdateMinMaxChDataRate();
     // If the min/max data rate is changed and the current data rate is outside spec, then update the current data rate accordingly
-    UpdateCurrentDataRateAfterDataRangeChanges ();
+    UpdateCurrentDataRateAfterDataRangeChanges();
 }
 
-static void UpdateMChannelIdStatus (uint8_t channelId, bool statusNew)
+static void UpdateMChannelIdStatus(uint8_t channelId, bool statusNew)
 {
     Channels[channelId].status = statusNew;
 }
-static LorawanError_t ValidateRxOffset (uint8_t rxOffset)
+
+static LorawanError_t ValidateRxOffset(uint8_t rxOffset)
 {
     LorawanError_t result =  OK;
 
-    if (rxOffset > 3)  //the allowed values for RX1Droffset are in the 0-3 range, values in the range 4-7 are reserved for future use.
+    if (rxOffset > 3)  // The allowed values for RX1Droffset are in the 0-3 range, values in the range 4-7 are reserved for future use.
     {
         result = INVALID_PARAMETER;
     }
@@ -1054,12 +1017,13 @@ static LorawanError_t ValidateRxOffset (uint8_t rxOffset)
     return result;
 }
 
-static LorawanError_t ValidateFrequency (uint32_t frequencyNew)
+static LorawanError_t ValidateFrequency(uint32_t frequencyNew)
 {
     LorawanError_t result = OK;
 
-    // this function is used only for reception frequencies, thus we have to check if the actual frequency is generated acc. to LoRaWAN spec
-    //Downstream ? 8 channels numbered 0 to 7 utilizing LoRa 500 kHz BW at DR10 to
+    // This function is used only for reception frequencies, thus we have to check 
+    // if the actual frequency is generated according to LoRaWAN spec. 
+    // Downstream ? 8 channels numbered 0 to 7 utilizing LoRa 500 kHz BW at DR10 to
     // 14 DR13) starting at 923.3 MHz and incrementing linearly by 600 kHz to 927.5 MHz
 
     if ( (frequencyNew < FREQ_923300KHZ) || (frequencyNew > FREQ_927500KHZ) ||  ( ( (frequencyNew - FREQ_923300KHZ) % FREQ_600KHZ) != 0) )
@@ -1069,7 +1033,7 @@ static LorawanError_t ValidateFrequency (uint32_t frequencyNew)
     return result;
 }
 
-static LorawanError_t ValidateDataRange (uint8_t channelId, uint8_t dataRangeNew)
+static LorawanError_t ValidateDataRange(uint8_t channelId, uint8_t dataRangeNew)
 {
     LorawanError_t result = OK;
     uint8_t dataRateMax, dataRateMin;
@@ -1087,8 +1051,9 @@ static LorawanError_t ValidateDataRange (uint8_t channelId, uint8_t dataRangeNew
     return result;
 }
 
-static LorawanError_t ValidateChannelId (uint8_t channelId)  //if allowedForDefaultChannels is 1, all the channels can be modified, if it is 0 channels 0, 1, 2 and 16, 17, and 18 (dual band) cannot be modified
+static LorawanError_t ValidateChannelId(uint8_t channelId)  
 {
+    // If allowedForDefaultChannels is 1, all the channels can be modified, if it is 0 channels 0, 1, 2 and 16, 17, and 18 (dual band) cannot be modified
     LorawanError_t result = OK;
 
     if (channelId >= loRa.maxChannels)
@@ -1111,7 +1076,7 @@ static LorawanError_t isDefaultChannel(uint8_t channelId) //Cannot use NewChanne
     return result;
 }
 
-static LorawanError_t ValidateChannelMaskCntl (uint8_t channelMaskCntl)
+static LorawanError_t ValidateChannelMaskCntl(uint8_t channelMaskCntl)
 {
     LorawanError_t result = OK;
 
@@ -1124,7 +1089,7 @@ static LorawanError_t ValidateChannelMaskCntl (uint8_t channelMaskCntl)
     return result;
 }
 
-static void EnableChannels (uint16_t channelMask, uint8_t channelMaskCntl)
+static void EnableChannels(uint16_t channelMask, uint8_t channelMaskCntl)
 {
     uint8_t i, channel;
 
@@ -1132,40 +1097,32 @@ static void EnableChannels (uint16_t channelMask, uint8_t channelMaskCntl)
 
     switch (channelMaskCntl)
     {
-        case 0: //US Channels 125 khz are enabled
+        case 0: //US Channels 125 kHz are enabled
         case 1:
         case 2:
         case 3:
         case 4:
-        {
-            EnableChannels2 (channel, channel + 15, channelMask);
-        } break;
+                EnableChannels2(channel, channel + 15, channelMask);
+                break;
 
         case 5:  //RFU, do nothing
-        {
-        } break;
+                break;
 
         case 6: // All 125 kHz ON ChMask applies to channels 65 to 72
-        {
-            for (i = 0; i <= 63; i++)
-            {
-               UpdateMChannelIdStatus (i, ENABLED);
-            }
-            EnableChannels2 (64, 71, channelMask);
-        } break;
+                for (i = 0; i <= 63; i++)
+                    UpdateMChannelIdStatus(i, ENABLED);
+                EnableChannels2(64, 71, channelMask);
+                break;
 
         case 7: //All 125 kHz OFF ChMask applies to channels 65 to 72
-        {
-            for (i = 0; i <= 63; i++)
-            {
-                UpdateMChannelIdStatus (i, DISABLED);
-            }
-            EnableChannels2 (64, 71, channelMask);
-        } break;
+                for (i = 0; i <= 63; i++)
+                    UpdateMChannelIdStatus(i, DISABLED);
+                EnableChannels2(64, 71, channelMask);
+                break;
     }
 }
 
-static void UpdateCurrentDataRateAfterDataRangeChanges (void)
+static void UpdateCurrentDataRateAfterDataRangeChanges(void)
 {
     if (loRa.currentDataRate > loRa.maxDataRate)
     {
@@ -1179,7 +1136,8 @@ static void UpdateCurrentDataRateAfterDataRangeChanges (void)
 }
 
 // Generates a frequency for US upstream, utilizing LoRa 125 kHz BW varying from SF7 to SF10 (DR0..DR3) starting at 902.3 MHz and incrementing linearly by 200 kHz to 914.9 MHz
-static uint32_t GenerateUSFrequency1 (uint8_t channelIndex)   // channelIndex should be a random number between 0 and 63, generated with the random function
+// channelIndex should be a random number between 0 and 63, generated with the random function
+static uint32_t GenerateUSFrequency1(uint8_t channelIndex)   
 {
     uint32_t channelFrequency;
 #ifdef AU915
@@ -1192,7 +1150,7 @@ static uint32_t GenerateUSFrequency1 (uint8_t channelIndex)   // channelIndex sh
 }
 
 // Generates a frequency for US upstream, utilizing LoRa 500 kHz BW at SF8 (maxDR) starting at 903.0 MHz and incrementing linearly by 1.6 MHz to 914.2 MHz
-static uint32_t GenerateUSFrequency2 (uint8_t channelIndex)
+static uint32_t GenerateUSFrequency2(uint8_t channelIndex)
 {
     uint32_t channelFrequency;
 #ifdef AU915
@@ -1204,7 +1162,7 @@ static uint32_t GenerateUSFrequency2 (uint8_t channelIndex)
     return channelFrequency;
 }
 
-static uint32_t GenerateUSFrequencyReception (uint8_t channelIndex)
+static uint32_t GenerateUSFrequencyReception(uint8_t channelIndex)
 {
     uint32_t channelFrequency;
 #ifdef AU915
@@ -1216,7 +1174,7 @@ static uint32_t GenerateUSFrequencyReception (uint8_t channelIndex)
     return channelFrequency;
 }
 
-static void EnableChannels2 (uint8_t startIndex, uint8_t endIndex, uint16_t channelMask)
+static void EnableChannels2(uint8_t startIndex, uint8_t endIndex, uint16_t channelMask)
 {
     uint8_t i;
 
@@ -1232,13 +1190,13 @@ static void EnableChannels2 (uint8_t startIndex, uint8_t endIndex, uint16_t chan
         }
         channelMask = channelMask >> SHIFT1;
     }
-    // after updating the status of a channel we need to check if the minimum dataRange has changed or not.
+    // After updating the status of a channel we need to check if the minimum dataRange has changed or not.
     UpdateMinMaxChDataRate ();
     // If the min/max data rate is changed and the current data rate is outside spec, then update the current data rate accordingly
     UpdateCurrentDataRateAfterDataRangeChanges ();
 }
 
-static LorawanError_t ValidateDataRateReception (uint8_t dataRate)
+static LorawanError_t ValidateDataRateReception(uint8_t dataRate)
 {
     LorawanError_t result = OK;
 
@@ -1250,10 +1208,11 @@ static LorawanError_t ValidateDataRateReception (uint8_t dataRate)
     return result;
 }
 
-static void Retransmissions (void)
+static void Retransmissions(void)
 {
-    if (loRa.lorawanMacStatus.ackRequiredFromNextDownlinkMessage == ENABLED) // if last uplink packet was confirmed, we have to send this packet by the number indicated by NbRepConfFrames
+    if (loRa.lorawanMacStatus.ackRequiredFromNextDownlinkMessage == ENABLED) 
     {
+        // if last uplink packet was confirmed, we have to send this packet by the number indicated by NbRepConfFrames
         if (loRa.counterRepetitionsConfirmedUplink <= loRa.maxRepetitionsConfirmedUplink)
         {
             UpdateRetransmissionAckTimeoutState ();
@@ -1267,18 +1226,18 @@ static void Retransmissions (void)
             }
         }
     }
-
     else
     {
         if (loRa.counterRepetitionsUnconfirmedUplink <= loRa.maxRepetitionsUnconfirmedUplink)
         {
-        loRa.macStatus.macState = RETRANSMISSION_DELAY;
+            loRa.macStatus.macState = RETRANSMISSION_DELAY;
 
             if ( (SelectChannelForTransmission (1) == OK) )
             {
                 if (RADIO_Transmit (&macBuffer[16], loRa.lastPacketLength) == OK)
                 {
-                    loRa.counterRepetitionsUnconfirmedUplink ++ ; //for each retransmission, the counter increments
+                    // For each retransmission, the counter increments
+                    loRa.counterRepetitionsUnconfirmedUplink++; 
                 }
                 else
                 {
@@ -1287,35 +1246,37 @@ static void Retransmissions (void)
                     SwTimerStart(loRa.transmissionErrorTimerId);     
                 }
             }
-
             else
-            // if no channels were found, then no more retransmissions will occur for this packet
             {
+                // If no channels were found, then no more retransmissions will occur for this packet
                 ResetParametersForUnconfirmedTransmission ();
                 if (rxPayload.RxAppData != NULL)
                 {
-                    rxPayload.RxAppData(NULL, 0, MAC_OK);  // inform the application layer that retransmissions have stopped
+                    // Inform the application layer that retransmissions have stopped
+                    rxPayload.RxAppData(NULL, 0, MAC_OK);  
                 }
             }
         }
         else
         {
-            ResetParametersForUnconfirmedTransmission ();
+            ResetParametersForUnconfirmedTransmission();
             if (rxPayload.RxAppData != NULL)
             {
-                rxPayload.RxAppData(NULL, 0, MAC_OK);  // inform the application layer that retransmissions have stopped
+                // Inform the application layer that retransmissions have stopped
+                rxPayload.RxAppData(NULL, 0, MAC_OK);  
             }
         }
     }
 }
  
-static void TransmissionErrorCallback (uint8_t param)
+static void TransmissionErrorCallback(uint8_t param)
 {
-    if ( (SelectChannelForTransmission (1) == OK) )
+    if ( (SelectChannelForTransmission(1) == OK) )
     {
-        if (RADIO_Transmit (&macBuffer[16], loRa.lastPacketLength) == OK)
+        if (RADIO_Transmit(&macBuffer[16], loRa.lastPacketLength) == OK)
         {
-            loRa.counterRepetitionsUnconfirmedUplink ++ ; //for each retransmission, the counter increments
+            // For each retransmission, the counter increments
+            loRa.counterRepetitionsUnconfirmedUplink++ ; 
         }
         else
         {
@@ -1324,14 +1285,14 @@ static void TransmissionErrorCallback (uint8_t param)
             SwTimerStart(loRa.transmissionErrorTimerId);     
         }
     }
-
     else
-    // if no channels were found, then no more retransmissions will occur for this packet
     {
+        // If no channels were found, then no more retransmissions will occur for this packet
         ResetParametersForUnconfirmedTransmission ();
         if (rxPayload.RxAppData != NULL)
         {
-            rxPayload.RxAppData(NULL, 0, MAC_OK);  // inform the application layer that retransmissions have stopped
+            // Inform the application layer that retransmissions have stopped
+            rxPayload.RxAppData(NULL, 0, MAC_OK);  
         }
     }
 }

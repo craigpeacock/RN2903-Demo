@@ -51,7 +51,6 @@ extern "C" {
 #include "../pin_manager.h"
 #include "pin_manager_lora_addons.h"
 
-    
 void HALResetPinMakeOutput(void);
 void HALResetPinMakeInput(void);
 void HALResetPinOutputValue(uint8_t value);
@@ -71,7 +70,3 @@ void HALDisableRFSwitch(uint8_t ifc);
 #endif
 
 #endif	/* RADIO_DRIVER_HAL_H */
-
-/**
- End of File
-*/

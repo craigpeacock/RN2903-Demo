@@ -44,16 +44,9 @@
 #include "radio_driver_hal.h"
 #include "lorawan_radio.h"
 #include "sw_timer.h"
-#if defined(DEBUGRX2)
-// debug bct
-#include "../../parser/parser.h"
-#include "../../parser/parser_tsp.h"
-#include "../../parser/parser_utils.h"
-#endif // DEBUGRX2
 
 #define TIME_ON_AIR_LOAD_VALUE              ((uint32_t)20000)
 #define WATCHDOG_DEFAULT_TIME               ((uint32_t)15000)
-
 
 // These enums need to be set according to the definition in the radio
 // datasheet
@@ -105,11 +98,7 @@ typedef struct
     RadioFSKBandWidth_t afcBw;
 } RadioConfiguration_t;
 
-
-
 static RadioConfiguration_t RadioConfiguration;
-
-
 
 static void RADIO_RxFSKTimeout(uint8_t param);
 static void RADIO_WatchdogTimeout(uint8_t param);
@@ -127,8 +116,6 @@ static void RADIO_TxDone(void);
 static void RADIO_FSKPacketSent(void);
 static void RADIO_UnhandledInterrupt(RadioModulation_t modulation);
 static void RADIO_FHSSChangeChannel(void);
-
-
 
 void RADIO_RegisterWrite(uint8_t reg, uint8_t value)
 {
@@ -149,8 +136,7 @@ uint8_t RADIO_RegisterRead(uint8_t reg)
     return readValue;
 }
 
-
-// This function repurposes DIO5 for ModeReady functionality
+// This function re-purposes DIO5 for ModeReady functionality
 static void RADIO_WriteMode(RadioMode_t newMode, RadioModulation_t newModulation, uint8_t blocking)
 {
     uint8_t opMode;
@@ -161,7 +147,7 @@ static void RADIO_WriteMode(RadioMode_t newMode, RadioModulation_t newModulation
     if ((MODULATION_FSK == newModulation) &&
         ((MODE_RXSINGLE == newMode) || (MODE_CAD == newMode)))
     {
-        // Unavaliable modes for FSK. Just return.
+        // Unavailable modes for FSK. Just return.
         return;
     }
 
@@ -251,7 +237,6 @@ static void RADIO_WriteMode(RadioMode_t newMode, RadioModulation_t newModulation
         }
     }
 }
-
 
 static void RADIO_Reset(void)
 {
@@ -463,7 +448,6 @@ void RADIO_Init(uint8_t *radioBuffer, uint32_t frequency)
     RadioConfiguration.afcBw = FSKBW_83_3KHZ;
     RadioConfiguration.fhssNextFrequency = NULL;
 
-
     // Make sure we do not allocate multiple software timers just because the
     // radio's initialization function is called multiple times.
     if (0 == RadioConfiguration.initialized)
@@ -499,8 +483,7 @@ void RADIO_Init(uint8_t *radioBuffer, uint32_t frequency)
     RADIO_RegisterWrite(REG_FSK_IMAGECAL, 0x42);
 
     // Wait for calibration to complete
-    while ((RADIO_RegisterRead(REG_FSK_IMAGECAL) & 0x20) != 0)
-        ;
+    while ((RADIO_RegisterRead(REG_FSK_IMAGECAL) & 0x20) != 0) { };
 
     // High frequency LNA current adjustment, 150% LNA current (Boost on)
     RADIO_RegisterWrite(REG_LNA, 0x23);
@@ -592,7 +575,6 @@ static void RADIO_WriteConfiguration(uint16_t symbolTimeout)
                 (RadioConfiguration.dataRate << SHIFT4) |
                 ((RadioConfiguration.crcOn & 0x01) << SHIFT2) |
                 ((symbolTimeout & 0x0300) >> SHIFT8));
-
 
         // Handle frequency hopping, if necessary
         if (0 != RadioConfiguration.frequencyHopPeriod)
@@ -821,7 +803,6 @@ RadioError_t RADIO_TransmitCW(void)
 
 RadioError_t RADIO_StopCW(void)
 {
-
     RADIO_WriteMode(MODE_STANDBY, RadioConfiguration.modulation, 0);
     SystemBlockingWaitMs(100);
     RADIO_WriteMode(MODE_SLEEP, RadioConfiguration.modulation, 0);
@@ -932,14 +913,6 @@ RadioError_t RADIO_Transmit(uint8_t *buffer, uint8_t bufferLen)
 // rxWindowSize parameter is in symbols for LoRa and ms for FSK
 RadioError_t RADIO_ReceiveStart(uint16_t rxWindowSize)
 {
-#if defined(DEBUGRX2)
-   // debug bct
-    {
-    uint8_t debug_buf[20];
-    strcpy(debug_buf, "### Rx: start");
-    Parser_TxAddReply(debug_buf, strlen(debug_buf));
-    }
-#endif // DEBUGRX2
     if ((RadioConfiguration.flags & RADIO_FLAG_RXDATA) != 0)
     {
         return ERR_BUFFER_LOCKED;
@@ -1021,17 +994,8 @@ RadioError_t RADIO_ReceiveStart(uint16_t rxWindowSize)
     return ERR_NONE;
 }
 
-
 void RADIO_ReceiveStop(void)
 {
-#if defined(DEBUGRX2)
-   // debug bct
-    {
-    uint8_t debug_buf[20];
-    strcpy(debug_buf, "### Rx: stop");
-    Parser_TxAddReply(debug_buf, strlen(debug_buf));
-    }
-#endif // DEBUGRX2
     if (RADIO_FLAG_RECEIVING == RadioConfiguration.flags)
     {
         RADIO_WriteMode(MODE_SLEEP, RadioConfiguration.modulation, 0);
@@ -1042,20 +1006,11 @@ void RADIO_ReceiveStop(void)
     }
 }
 
-
 static void RADIO_RxDone(void)
 {
     uint8_t i, irqFlags;
     uint8_t rssi;
     
-#if defined(DEBUGRX2)
-   // debug bct
-    {
-    uint8_t debug_buf[20];
-    strcpy(debug_buf, "### Rx: done");
-    Parser_TxAddReply(debug_buf, strlen(debug_buf));
-    }
-#endif // DEBUGRX2
     irqFlags = RADIO_RegisterRead(REG_LORA_IRQFLAGS);
     // Clear RxDone interrupt (also CRC error and ValidHeader interrupts, if
     // they exist)
@@ -1078,7 +1033,6 @@ static void RADIO_RxDone(void)
 
             // Radio did not go to standby automatically. Will need to be set
             // later on.
-            
             RadioConfiguration.dataBufferLen = RADIO_RegisterRead(REG_LORA_RXNBBYTES);
             RADIO_RegisterWrite(REG_LORA_FIFOADDRPTR, 0x00);
 
@@ -1174,14 +1128,6 @@ static void RADIO_FSKPayloadReady(void)
 
 static void RADIO_RxTimeout(void)
 {
-#if defined(DEBUGRX2)
-   // debug bct
-    {
-    uint8_t debug_buf[20];
-    strcpy(debug_buf, "### Rx: time");
-    Parser_TxAddReply(debug_buf, strlen(debug_buf));
-    }
-#endif // DEBUGRX2
     // Make sure the watchdog won't trigger MAC functions erroneously.
     SwTimerStop(RadioConfiguration.watchdogTimerId);
 
@@ -1239,7 +1185,6 @@ static void RADIO_FSKPacketSent(void)
         }
     }
 }
-
 
 uint8_t RADIO_GetStatus(void)
 {
@@ -1303,7 +1248,6 @@ static void RADIO_UnhandledInterrupt(RadioModulation_t modulation)
     }
 }
 
-
 static void RADIO_FHSSChangeChannel(void)
 {
     uint8_t irqFlags;
@@ -1320,7 +1264,6 @@ static void RADIO_FHSSChangeChannel(void)
     // Clear FHSSChangeChannel interrupt
     RADIO_RegisterWrite(REG_LORA_IRQFLAGS, 1<<SHIFT1);
 }
-
 
 void RADIO_DIO0(void)
 {
@@ -1375,7 +1318,6 @@ void RADIO_DIO0(void)
         }
     }
 }
-
 
 void RADIO_DIO1(void)
 {
@@ -1535,7 +1477,6 @@ uint16_t RADIO_ReadRandom(void)
 
     // Turn off the RF switch.
     RADIO_SW_POW_SetLow();
-	
 
     // Return radio to sleep
     RADIO_WriteMode(MODE_SLEEP, MODULATION_LORA, 1);
@@ -1565,17 +1506,8 @@ static void RADIO_RxFSKTimeout(uint8_t param)
     }
 }
 
-
 static void RADIO_WatchdogTimeout(uint8_t param)
 {
-#if defined(DEBUGRX2)
-   // debug bct
-    {
-    uint8_t debug_buf[20];
-    strcpy(debug_buf, "### Rx: wdt");
-    Parser_TxAddReply(debug_buf, strlen(debug_buf));
-    }
-#endif // DEBUGRX2
     RADIO_WriteMode(MODE_STANDBY, RadioConfiguration.modulation, 1);
     RADIO_WriteMode(MODE_SLEEP, RadioConfiguration.modulation, 0);
 
@@ -1592,7 +1524,7 @@ static void RADIO_WatchdogTimeout(uint8_t param)
     {
         RadioConfiguration.flags &= ~RADIO_FLAG_TRANSMITTING;
         // This will tell the MAC that the channel has been used a lot. Since
-        // this time-out occured we cannot know for sure that the radio did not
+        // this time-out occurred we cannot know for sure that the radio did not
         // transmit this whole time, so this is the safest way to go (block the
         // channel for a really long time from now on).
         LORAWAN_TxDone(RadioConfiguration.watchdogTimerTimeout);
@@ -1669,7 +1601,6 @@ uint8_t RADIO_GetIQInverted(void)
     return RadioConfiguration.iqInverted;
 }
 
-
 void RADIO_SetBandwidth(RadioLoRaBandWidth_t bandwidth)
 {
     RadioConfiguration.bandWidth = bandwidth;
@@ -1735,7 +1666,6 @@ uint8_t RADIO_GetFrequencyHopPeriod(void)
     return RadioConfiguration.frequencyHopPeriod;
 }
 
-
 void RADIO_SetErrorCodingRate(RadioErrorCodingRate_t errorCodingRate)
 {
     RadioConfiguration.errorCodingRate = errorCodingRate;
@@ -1745,7 +1675,6 @@ RadioErrorCodingRate_t RADIO_GetErrorCodingRate(void)
 {
     return RadioConfiguration.errorCodingRate;
 }
-
 
 void RADIO_SetWatchdogTimeout(uint32_t timeout)
 {
@@ -1757,7 +1686,6 @@ uint32_t RADIO_GetWatchdogTimeout(void)
     return RadioConfiguration.watchdogTimerTimeout;
 }
 
-
 void RADIO_SetFSKBitRate(uint32_t bitRate)
 {
     RadioConfiguration.bitRate = bitRate;
@@ -1767,7 +1695,6 @@ uint32_t RADIO_GetFSKBitRate(void)
 {
     return RadioConfiguration.bitRate;
 }
-
 
 void RADIO_SetFSKDataShaping(RadioFSKShaping_t fskDataShaping)
 {
@@ -1814,8 +1741,3 @@ uint8_t RADIO_GetFSKSyncWord(uint8_t* syncWord)
     memcpy(syncWord, RadioConfiguration.syncWord, RadioConfiguration.syncWordLen);
     return RadioConfiguration.syncWordLen;
 }
-
-
-/**
- End of File
-*/

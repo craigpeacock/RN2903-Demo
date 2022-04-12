@@ -61,7 +61,3 @@ void TMR_ISR_Lora_Init(void);
 #endif
 
 #endif	/* TMR1_LORA_ADDONS_H */
-
-/**
- End of File
-*/

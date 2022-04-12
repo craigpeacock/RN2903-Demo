@@ -236,7 +236,7 @@ typedef union
         unsigned joining: 1;
         unsigned fPending:1;
         unsigned adrAckRequest:1;
-        unsigned synchronization:1;                      //if set, there is no need to send an immediat packet because the application sent one from the callback
+        unsigned synchronization:1;                      //if set, there is no need to send an immediate packet because the application sent one from the callback
         unsigned alternativeChannelUs:1;
     };
 } LorawanMacStatus_t;
@@ -299,10 +299,6 @@ typedef struct
 } LoRa_t;
 
 extern LoRa_t loRa;
-
-
-/*************************** FUNCTIONS PROTOTYPE ******************************/
-
 
 #ifdef	__cplusplus
 }

@@ -45,7 +45,6 @@
 extern "C" {
 #endif
 
-
 #define REG_WRITE                                       0x80
 
 // Common registers
@@ -174,13 +173,8 @@ extern "C" {
 #define REG_LORA_INVERTIQ_VALUE_TX_ON                   0x00
 #define REG_LORA_INVERTIQ_VALUE_TX_OFF                  0x01    
 
-
 #ifdef	__cplusplus
 }
 #endif
 
 #endif	/* RADIO_REGISTERS_H */
-
-/**
- End of File
-*/

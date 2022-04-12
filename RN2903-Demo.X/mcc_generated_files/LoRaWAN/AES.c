@@ -32,15 +32,10 @@
  * M91511          2014.12.12        0.5
  ******************************************************************************/
 
-
 #include <stdlib.h>
 #include <stdint.h>
 
 #include "AES.h"
-
-//#define block_copy_nn(d, s, l)    copy_block_nn(d, s, l)
-//#define block_copy(d, s)          copy_block(d, s)
-
 
 #define BLOCKSIZE 16
 
@@ -70,77 +65,6 @@ const unsigned char STable[] =
 	0xE1,0xF8,0x98,0x11,0x69,0xD9,0x8E,0x94,0x9B,0x1E,0x87,0xE9,0xCE,0x55,0x28,0xDF,
 	0x8C,0xA1,0x89,0x0D,0xBF,0xE6,0x42,0x68,0x41,0x99,0x2D,0x0F,0xB0,0x54,0xBB,0x16
 };
-
-
-//static void copy_block( void *d, const void *s )
-//{
-//    ((uint8_t*)d)[ 0] = ((uint8_t*)s)[ 0];
-//    ((uint8_t*)d)[ 1] = ((uint8_t*)s)[ 1];
-//    ((uint8_t*)d)[ 2] = ((uint8_t*)s)[ 2];
-//    ((uint8_t*)d)[ 3] = ((uint8_t*)s)[ 3];
-//    ((uint8_t*)d)[ 4] = ((uint8_t*)s)[ 4];
-//    ((uint8_t*)d)[ 5] = ((uint8_t*)s)[ 5];
-//    ((uint8_t*)d)[ 6] = ((uint8_t*)s)[ 6];
-//    ((uint8_t*)d)[ 7] = ((uint8_t*)s)[ 7];
-//    ((uint8_t*)d)[ 8] = ((uint8_t*)s)[ 8];
-//    ((uint8_t*)d)[ 9] = ((uint8_t*)s)[ 9];
-//    ((uint8_t*)d)[10] = ((uint8_t*)s)[10];
-//    ((uint8_t*)d)[11] = ((uint8_t*)s)[11];
-//    ((uint8_t*)d)[12] = ((uint8_t*)s)[12];
-//    ((uint8_t*)d)[13] = ((uint8_t*)s)[13];
-//    ((uint8_t*)d)[14] = ((uint8_t*)s)[14];
-//    ((uint8_t*)d)[15] = ((uint8_t*)s)[15];
-//}
-
-//static void copy_block_nn( uint8_t * d, const uint8_t *s, uint8_t nn )
-//{
-//    while( nn-- )
-//        //*((uint8_t*)d)++ = *((uint8_t*)s)++;
-//        *d++ = *s++;
-//}
-
-//static void xor_block( void *d, const void *s )
-//{
-//    ((uint8_t*)d)[ 0] ^= ((uint8_t*)s)[ 0];
-//    ((uint8_t*)d)[ 1] ^= ((uint8_t*)s)[ 1];
-//    ((uint8_t*)d)[ 2] ^= ((uint8_t*)s)[ 2];
-//    ((uint8_t*)d)[ 3] ^= ((uint8_t*)s)[ 3];
-//    ((uint8_t*)d)[ 4] ^= ((uint8_t*)s)[ 4];
-//    ((uint8_t*)d)[ 5] ^= ((uint8_t*)s)[ 5];
-//    ((uint8_t*)d)[ 6] ^= ((uint8_t*)s)[ 6];
-//    ((uint8_t*)d)[ 7] ^= ((uint8_t*)s)[ 7];
-//    ((uint8_t*)d)[ 8] ^= ((uint8_t*)s)[ 8];
-//    ((uint8_t*)d)[ 9] ^= ((uint8_t*)s)[ 9];
-//    ((uint8_t*)d)[10] ^= ((uint8_t*)s)[10];
-//    ((uint8_t*)d)[11] ^= ((uint8_t*)s)[11];
-//    ((uint8_t*)d)[12] ^= ((uint8_t*)s)[12];
-//    ((uint8_t*)d)[13] ^= ((uint8_t*)s)[13];
-//    ((uint8_t*)d)[14] ^= ((uint8_t*)s)[14];
-//    ((uint8_t*)d)[15] ^= ((uint8_t*)s)[15];
-//
-//}
-
-//static void copy_and_key( void *d, const void *s, const void *k )
-//{
-//    ((uint8_t*)d)[ 0] = ((uint8_t*)s)[ 0] ^ ((uint8_t*)k)[ 0];
-//    ((uint8_t*)d)[ 1] = ((uint8_t*)s)[ 1] ^ ((uint8_t*)k)[ 1];
-//    ((uint8_t*)d)[ 2] = ((uint8_t*)s)[ 2] ^ ((uint8_t*)k)[ 2];
-//    ((uint8_t*)d)[ 3] = ((uint8_t*)s)[ 3] ^ ((uint8_t*)k)[ 3];
-//    ((uint8_t*)d)[ 4] = ((uint8_t*)s)[ 4] ^ ((uint8_t*)k)[ 4];
-//    ((uint8_t*)d)[ 5] = ((uint8_t*)s)[ 5] ^ ((uint8_t*)k)[ 5];
-//    ((uint8_t*)d)[ 6] = ((uint8_t*)s)[ 6] ^ ((uint8_t*)k)[ 6];
-//    ((uint8_t*)d)[ 7] = ((uint8_t*)s)[ 7] ^ ((uint8_t*)k)[ 7];
-//    ((uint8_t*)d)[ 8] = ((uint8_t*)s)[ 8] ^ ((uint8_t*)k)[ 8];
-//    ((uint8_t*)d)[ 9] = ((uint8_t*)s)[ 9] ^ ((uint8_t*)k)[ 9];
-//    ((uint8_t*)d)[10] = ((uint8_t*)s)[10] ^ ((uint8_t*)k)[10];
-//    ((uint8_t*)d)[11] = ((uint8_t*)s)[11] ^ ((uint8_t*)k)[11];
-//    ((uint8_t*)d)[12] = ((uint8_t*)s)[12] ^ ((uint8_t*)k)[12];
-//    ((uint8_t*)d)[13] = ((uint8_t*)s)[13] ^ ((uint8_t*)k)[13];
-//    ((uint8_t*)d)[14] = ((uint8_t*)s)[14] ^ ((uint8_t*)k)[14];
-//    ((uint8_t*)d)[15] = ((uint8_t*)s)[15] ^ ((uint8_t*)k)[15];
-//}
-
-
 
 /*********************************************************************
 * Function: void EncKeySchedule(unsigned char* key)
@@ -230,8 +154,6 @@ void EncodeShiftRow(unsigned char* stateTable)
 	stateTable[11]=stateTable[7];
 	stateTable[7]=temp;
 }
-
-
 
 void AESEncode(unsigned char* block, unsigned char* masterKey)
 {

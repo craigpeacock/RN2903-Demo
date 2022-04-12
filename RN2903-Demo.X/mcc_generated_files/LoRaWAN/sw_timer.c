@@ -59,7 +59,6 @@ volatile static SwTimer_t swTimers[MAX_TIMERS];
 volatile static uint8_t allocatedTimers;
 volatile static uint32_t ticksAccounted = 0;
 
-
 // This function needs to be called with interrupts stopped, shortly after
 // GetDeltaTime (i.e. when ticksPassed ~= 0)
 void TMR_OverrideRemaining(uint32_t ticksRemaining)
@@ -357,7 +356,3 @@ void SwTimerSetPS(uint8_t newPS)
     }
     INTERRUPT_GlobalInterruptEnable();
 }
-
-/**
- End of File
-*/

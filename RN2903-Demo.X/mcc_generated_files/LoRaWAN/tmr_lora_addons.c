@@ -68,7 +68,3 @@ void TMR_ISR_lora(void)
         ticksAdded = TMR_SwapTimer(reloadVal);
     }
 }
-
-/**
- End of File
-*/

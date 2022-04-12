@@ -164,7 +164,3 @@ extern "C" {
 #endif
 
 #endif	/* MCC_LORA_DEFS_H */
-
-/**
- End of File
-*/

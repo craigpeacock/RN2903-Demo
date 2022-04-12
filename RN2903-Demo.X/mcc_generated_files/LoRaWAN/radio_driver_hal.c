@@ -90,7 +90,6 @@ uint8_t HALDIO2PinValue(void)
     return RADIO_DIO2_GetValue();
 }
 
-
 uint8_t HALDIO4PinValue(void)
 {
     return RADIO_DIO4_GetValue();
@@ -110,7 +109,3 @@ void HALDisableRFSwitch(uint8_t ifc)
 {
     RADIO_SW_POW_SetLow();
 }
-
-/**
- End of File
-*/

@@ -32,8 +32,6 @@
 extern "C" {
 #endif
 
-
-
 /****************************** INCLUDES **************************************/
 #include <stdint.h>
 #include <stdlib.h>
@@ -41,31 +39,16 @@ extern "C" {
 #include <stddef.h>
 #include <string.h>
 #include <xc.h>
-
 #include "lorawan.h"
-    
-/****************************** DEFINES ***************************************/
-
-
-
-/***************************** TYPEDEFS ***************************************/
-
-
 
 /*************************** FUNCTIONS PROTOTYPE ******************************/
 
 void LORAWAN_TxDone (uint16_t timeOnAir);
-
 LorawanError_t LORAWAN_RxDone (uint8_t *buffer, uint8_t bufferLength);
-
 void LORAWAN_RxTimeout (void);
-
 
 #ifdef	__cplusplus
 }
 #endif
 
 #endif	/* _LORAWAN_RADIO_H */
-
-
-

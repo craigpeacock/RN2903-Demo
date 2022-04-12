@@ -85,13 +85,8 @@ uint32_t    TMR_SwapTimer(uint32_t timerVal);
 
 void        SwTimerSetPS(uint8_t newPS);
 
-
 #ifdef	__cplusplus
 }
 #endif
 
 #endif	/* SW_TIMER_H */
-
-/**
- End of File
-*/

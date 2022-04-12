@@ -48,7 +48,7 @@ extern "C" {
 
 #include "../pin_manager.h"
 
-// get/set RADIO_DIO0 aliases
+// Get/set RADIO_DIO0 aliases
 #define RADIO_DIO0_TRIS                     TRISB1
 #define RADIO_DIO0_LAT                      LATB1
 #define RADIO_DIO0_PORT                     RB1
@@ -65,7 +65,7 @@ extern "C" {
 #define RADIO_DIO0_SetAnalogMode()          do { ANSB1 = 1; } while(0)
 #define RADIO_DIO0_SetDigitalMode()         do { ANSB1 = 0; } while(0)
 
-// get/set RADIO_DIO1 aliases
+// Get/set RADIO_DIO1 aliases
 #define RADIO_DIO1_TRIS                     TRISB2
 #define RADIO_DIO1_LAT                      LATB2
 #define RADIO_DIO1_PORT                     RB2
@@ -82,7 +82,7 @@ extern "C" {
 #define RADIO_DIO1_SetAnalogMode()          do { ANSB2 = 1; } while(0)
 #define RADIO_DIO1_SetDigitalMode()         do { ANSB2 = 0; } while(0)
 
-// get/set RADIO_DIO2 aliases
+// Get/set RADIO_DIO2 aliases
 #define RADIO_DIO2_TRIS                     TRISB4
 #define RADIO_DIO2_LAT                      LATB4
 #define RADIO_DIO2_PORT                     RB4
@@ -99,8 +99,7 @@ extern "C" {
 #define RADIO_DIO2_SetAnalogMode()          do { ANSB4 = 1; } while(0)
 #define RADIO_DIO2_SetDigitalMode()         do { ANSB4 = 0; } while(0)
 
-
-// get/set RADIO_DIO4 aliases
+// Get/set RADIO_DIO4 aliases
 #define RADIO_DIO4_TRIS                     TRISB5
 #define RADIO_DIO4_LAT                      LATB5
 #define RADIO_DIO4_PORT                     RB5
@@ -117,7 +116,7 @@ extern "C" {
 #define RADIO_DIO4_SetAnalogMode()          do { ANSB5 = 1; } while(0)
 #define RADIO_DIO4_SetDigitalMode()         do { ANSB5 = 0; } while(0)
 
-// get/set RADIO_DIO5 aliases
+// Get/set RADIO_DIO5 aliases
 #define RADIO_DIO5_TRIS                     TRISB0
 #define RADIO_DIO5_LAT                      LATB0
 #define RADIO_DIO5_PORT                     RB0
@@ -134,7 +133,7 @@ extern "C" {
 #define RADIO_DIO5_SetAnalogMode()          do { ANSB0 = 1; } while(0)
 #define RADIO_DIO5_SetDigitalMode()         do { ANSB0 = 0; } while(0)    
 
-// get/set RADIO_SW_POW aliases
+// Get/set RADIO_SW_POW aliases
 #define RADIO_SW_POW_TRIS                   TRISB3
 #define RADIO_SW_POW_LAT                    LATB3
 #define RADIO_SW_POW_PORT                   RB3
@@ -151,7 +150,7 @@ extern "C" {
 #define RADIO_SW_POW_SetAnalogMode()        do { ANSB3 = 1; } while(0)
 #define RADIO_SW_POW_SetDigitalMode()       do { ANSB3 = 0; } while(0)    
 
-// get/set RADIO_nReset aliases
+// Get/set RADIO_nReset aliases
 #define RADIO_nReset_TRIS                   TRISC2
 #define RADIO_nReset_LAT                    LATC2
 #define RADIO_nReset_PORT                   RC2
@@ -168,9 +167,7 @@ extern "C" {
 #define RADIO_nReset_SetAnalogMode()        do { ANSC2 = 1; } while(0)
 #define RADIO_nReset_SetDigitalMode()       do { ANSC2 = 0; } while(0)        
 
-
-
-// get/set RADIO_nCS aliases
+// Get/set RADIO_nCS aliases
 #define RADIO_nCS_TRIS                      TRISD3
 #define RADIO_nCS_LAT                       LATD3
 #define RADIO_nCS_PORT                      RD3
@@ -187,13 +184,8 @@ extern "C" {
 #define RADIO_nCS_SetAnalogMode()           do { ANSD3 = 1; } while(0)
 #define RADIO_nCS_SetDigitalMode()          do { ANSD3 = 0; } while(0)        
 
-
 #ifdef    __cplusplus
 }
 #endif
 
 #endif    /* PIN_MANAGER_LORA_IF_H */
-
-/**
- End of File
-*/

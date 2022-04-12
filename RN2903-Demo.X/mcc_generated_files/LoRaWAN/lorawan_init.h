@@ -52,7 +52,3 @@ void LORAWAN_PlatformInit(void);
 #endif
 
 #endif	/* MCC_LORA_INIT_H */
-
-/**
- End of File
-*/

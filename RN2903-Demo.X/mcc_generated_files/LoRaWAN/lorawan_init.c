@@ -58,6 +58,7 @@ void DIO2_ISR_Lora_Init(void)
 
 void DIO3_ISR_Lora_Init(void)
 {
+    
 }
 
 void DIO4_ISR_Lora_Init(void)
@@ -81,6 +82,3 @@ void LORAWAN_PlatformInit(void)
     DIO5_ISR_Lora_Init();
     SystemTimerInit();
 }
-/**
- End of File
-*/

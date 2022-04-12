@@ -34,8 +34,8 @@
 #include "lorawan_defs.h"
 
 /************************ PRIVATE FUNCTION PROTOTYPES *************************/
-static void GenerateSubkey (uint8_t* key, uint8_t* k1, uint8_t* k2);
-static void FillSubKey( uint8_t *source, uint8_t *key, uint8_t size);
+static void GenerateSubkey(uint8_t* key, uint8_t* k1, uint8_t* k2);
+static void FillSubKey(uint8_t *source, uint8_t *key, uint8_t size);
 
 /****************************** PUBLIC FUNCTIONS ******************************/
 void AESCmac(uint8_t* key, uint8_t* output, uint8_t* input, uint8_t size)
@@ -121,13 +121,12 @@ void AESCmac(uint8_t* key, uint8_t* output, uint8_t* input, uint8_t size)
 }
 
 /****************************** PRIVATE FUNCTIONS *****************************/
-static void GenerateSubkey (uint8_t* key, uint8_t* k1, uint8_t* k2)
+static void GenerateSubkey(uint8_t* key, uint8_t* k1, uint8_t* k2)
 {
     uint8_t i = 0;
     uint8_t l[16];
     uint8_t const_Rb[16] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x87};
-
 
     memset(l, 0, sizeof(l));
 
@@ -164,7 +163,7 @@ static void GenerateSubkey (uint8_t* key, uint8_t* k1, uint8_t* k2)
     }
 }
 
-static void FillSubKey( uint8_t *source, uint8_t *key, uint8_t size)
+static void FillSubKey(uint8_t *source, uint8_t *key, uint8_t size)
 {
     uint8_t i = 0;
     uint8_t carry = 0;

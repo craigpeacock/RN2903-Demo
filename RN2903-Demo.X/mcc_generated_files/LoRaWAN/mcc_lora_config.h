@@ -53,7 +53,6 @@ extern "C" {
 #define SPI_ClearWriteCollisionStatus       SPI2_ClearWriteCollisionStatus
 /******************************* SPI ******************************************/
     
-    
 /******************************* TMR ******************************************/
 #define TMR_Initialize                      TMR1_Initialize
 #define TMR_StartTimer                      TMR1_StartTimer
@@ -70,11 +69,8 @@ extern "C" {
 #define TMR_CKPS                            (T1CONbits.T1CKPS)
 #define TMR_CKPS_Value                      (TMR_CKPS ? TMR_CKPS : 0)
 #define TMR_RUNNING                         (T1CONbits.TMR1ON ? 1 : 0)
-    
 #define TMR_SLEEP_PS                        3
 #define TMR_MASK                            (0x0000ffffUL << TMR_CKPS_Value)
-
-
 
 #ifdef	__cplusplus
 }

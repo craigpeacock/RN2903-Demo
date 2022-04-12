@@ -32,8 +32,6 @@
 extern "C" {
 #endif
 
-
-
 /****************************** INCLUDES **************************************/
 #include <stdint.h>
 #include <stdlib.h>
@@ -1489,6 +1487,3 @@ void LORAWAN_Mainloop (void);
 #endif
 
 #endif  /* _LORAWAN_H */
-
-
-

@@ -49,7 +49,6 @@ extern "C" {
 #include <stdint.h>
 #include "lorawan_defs.h"
 
-
 typedef enum
 {
     MODULATION_FSK = 0,
@@ -171,7 +170,6 @@ void RADIO_SetFrequencyHopPeriod(uint16_t frequencyHopPeriod);
 uint8_t RADIO_GetFrequencyHopPeriod(void);
 void RADIO_SetFHSSChangeCallback(uint32_t (*fhssNextFrequency)(void));
 
-
 void RADIO_SetErrorCodingRate(RadioErrorCodingRate_t errorCodingRate);
 RadioErrorCodingRate_t RADIO_GetErrorCodingRate(void);
 void RADIO_SetWatchdogTimeout(uint32_t timeout);
@@ -186,7 +184,6 @@ void RADIO_SetFSKAFCBw(RadioFSKBandWidth_t bw);
 RadioFSKBandWidth_t RADIO_GetFSKAFCBw(void);
 void RADIO_SetFSKSyncWord(uint8_t syncWordLen, uint8_t* syncWord);
 uint8_t RADIO_GetFSKSyncWord(uint8_t* syncWord);
-
 
 RadioError_t RADIO_Transmit(uint8_t *buffer, uint8_t bufferLen);
 RadioError_t RADIO_TransmitCW(void);
@@ -215,17 +212,11 @@ uint16_t RADIO_ReadRandom(void);
 int8_t RADIO_GetPacketSnr(void);
 int16_t RADIO_GetPacketRSSI(void);
 
-
 void RADIO_RegisterWrite(uint8_t reg, uint8_t value);
 uint8_t RADIO_RegisterRead(uint8_t reg);
-
 
 #ifdef	__cplusplus
 }
 #endif
 
 #endif	/* RADIO_DRIVER_H */
-
-/**
- End of File
-*/

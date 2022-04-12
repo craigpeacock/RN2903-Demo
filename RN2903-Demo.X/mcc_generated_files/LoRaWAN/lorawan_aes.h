@@ -32,26 +32,12 @@
 extern "C" {
 #endif
 
-
-
-/****************************** INCLUDES **************************************/
-
-    
-/****************************** DEFINES ***************************************/
 #define AES_BLOCKSIZE 16
 
-/***************************** TYPEDEFS ***************************************/
-
-
-/*************************** FUNCTIONS PROTOTYPE ******************************/
 void AESEncodeLoRa(unsigned char* block, unsigned char* key);
-
 
 #ifdef	__cplusplus
 }
 #endif
 
 #endif	/* _LORAWAN_AES_H */
-
-
-

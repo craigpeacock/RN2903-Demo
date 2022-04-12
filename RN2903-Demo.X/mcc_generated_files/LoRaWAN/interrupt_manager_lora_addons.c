@@ -89,7 +89,3 @@ void DIO5_ISR_Lora(void)
 {
     dioStatus |= DIO5;
 }
-
-/**
- End of File
-*/

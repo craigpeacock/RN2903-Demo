@@ -37,7 +37,7 @@ extern "C" {
 
 /****************************** DEFINES ***************************************/    
     
-#define INVALID_VALUE         0xFF
+#define INVALID_VALUE                           0xFF
 
 #define ENABLED                                 1
 #define DISABLED                                0
@@ -85,10 +85,10 @@ extern "C" {
     
 // bit mask for MAC commands
 // link ADR and RX2 setup
-#define CHANNEL_MASK_ACK                            0x01
-#define DATA_RATE_ACK                               0x02
-#define RX1_DR_OFFSET_ACK                           0x04
-#define POWER_ACK                                   0x04
+#define CHANNEL_MASK_ACK                        0x01
+#define DATA_RATE_ACK                           0x02
+#define RX1_DR_OFFSET_ACK                       0x04
+#define POWER_ACK                               0x04
     
 #define FPORT_MIN                               1
 #define FPORT_MAX                               223
@@ -174,7 +174,7 @@ typedef union
     } members;
 } FCnt_t;
 
-//union used for instantiation of DeviceEui and Application Eui
+//union used for instantiation of DeviceEUI and Application EUI
 typedef union
 {
     uint8_t buffer[8];
@@ -212,7 +212,7 @@ typedef union
     };
 } FCtrl_t;
 
-// Mac header structure
+// MAC header structure
 typedef union
 {
     uint8_t value;
@@ -363,7 +363,6 @@ void ResetParametersForUnconfirmedTransmission (void);
 void SetJoinFailState(void);
 
 uint16_t Random (uint16_t max);
-
 
 LorawanError_t SelectChannelForTransmission (bool transmissionType);  // transmission type is 0 means join request, transmission type is 1 means data message mode
 

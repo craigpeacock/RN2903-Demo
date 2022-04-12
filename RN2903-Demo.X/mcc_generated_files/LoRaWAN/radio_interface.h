@@ -45,7 +45,6 @@
 extern "C" {
 #endif
 
-
 #include "radio_driver_SX1276.h"
 
 #ifdef	__cplusplus
@@ -53,7 +52,3 @@ extern "C" {
 #endif
 
 #endif	/* RADIO_INTERFACE_H */
-
-/**
- End of File
-*/
