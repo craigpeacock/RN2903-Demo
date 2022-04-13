@@ -36,8 +36,15 @@
 #include "sw_timer.h"
 #include "interrupt_manager_lora_addons.h"
 #include <math.h>
+#include <stdio.h>
 
 #include "lorawan_na.h"
+
+// print TX & RX buffers
+#define DEBUG_RXBUF    
+
+// Decode MAC commands
+#define DEBUG_MAC  
 
 /****************************** VARIABLES *************************************/
 
@@ -117,6 +124,14 @@ extern void UpdateCfList (uint8_t bufferLength, JoinAccept_t *joinAccept);
 uint8_t localDioStatus;
 
 /****************************** PUBLIC FUNCTIONS ******************************/
+
+void printbuffer(uint8_t *desc, uint8_t *buf, uint8_t len)
+{
+    printf("%s %d bytes, ",desc, len);
+    for (uint8_t i = 0; i < len; i++)
+        printf("%02X ",buf[i]);
+    printf("\r\n");
+}
 
 LorawanError_t LORAWAN_Join(ActivationType_t activationTypeNew)
 {
@@ -1165,6 +1180,10 @@ LorawanError_t LORAWAN_RxDone(uint8_t *buffer, uint8_t bufferLength)
 
     RADIO_ReleaseData();
 
+#ifdef DEBUG_RXBUF
+    printbuffer("RX", buffer, bufferLength);
+#endif
+    
     // If the macStatus is not ENABLED perform normal RxDone processing
     if (loRa.macStatus.macPause == DISABLED)
     {
@@ -1756,6 +1775,10 @@ static uint8_t* MacExecuteCommands (uint8_t *buffer, uint8_t fOptsLen)
     ptr = buffer;
     uint8_t temp;
    
+#ifdef DEBUG_MAC    
+    printbuffer("RX MAC", buffer, fOptsLen);
+#endif
+    
     while ( (ptr < ( buffer + fOptsLen )) && (done == false) )
     {
         // Clean structure before using it         
